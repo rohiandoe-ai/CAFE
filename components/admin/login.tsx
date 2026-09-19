@@ -175,7 +175,7 @@ export function AdminLogin() {
 
         {/* Footer hint */}
         <p style={{ textAlign: "center", color: "#555", fontSize: 12, marginTop: 20 }}>
-          House of Paloma · Admin Portal
+          Havana Jaipur · Admin Portal
         </p>
       </motion.form>
 

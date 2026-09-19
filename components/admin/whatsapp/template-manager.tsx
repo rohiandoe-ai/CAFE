@@ -7,7 +7,7 @@ import { fillTemplate } from "@/lib/utils"
 
 const CATEGORIES = ["We Miss You","Special Offer","Birthday","New Menu Item","Custom"]
 const VARIABLES  = ["{name}","{cafe_name}","{offer}","{date}","{phone}"]
-const PREVIEW_VARS = { name: "Rahul", cafe_name: "House of Paloma", offer: "10% off", date: "this Sunday", phone: "+91 98765 43210" }
+const PREVIEW_VARS = { name: "Rahul", cafe_name: "Havana Jaipur", offer: "10% off", date: "this Sunday", phone: "+91 98765 43210" }
 
 const CAT_COLORS: Record<string, string> = {
   "We Miss You":   "#c9a84c",

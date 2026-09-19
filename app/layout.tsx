@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "House of Paloma",
+  title: "Havana Jaipur",
   description: "Share your experience with us",
 }
 

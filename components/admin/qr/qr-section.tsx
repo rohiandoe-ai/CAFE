@@ -29,7 +29,7 @@ export function QRSection() {
   const bgImgRef    = useRef<HTMLImageElement | null>(null)
 
   const [url,      setUrl]      = useState("")
-  const [name,     setName]     = useState("House of Paloma")
+  const [name,     setName]     = useState("Havana Jaipur")
   const [fg,       setFg]       = useState("#6b2d2d")
   const [bg,       setBg]       = useState("#f5e6c8")
   const [qrSize,   setQrSize]   = useState(220)
@@ -130,7 +130,7 @@ export function QRSection() {
                 <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#888880", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   Cafe / Bar Name
                 </label>
-                <input className="input-base" value={name} onChange={e => setName(e.target.value)} placeholder="House of Paloma" />
+                <input className="input-base" value={name} onChange={e => setName(e.target.value)} placeholder="Havana Jaipur" />
                 <p style={{ color: "#555", fontSize: 11, marginTop: 5 }}>✏️ Name changes live in preview</p>
               </div>
               <button onClick={save} disabled={saving} style={{

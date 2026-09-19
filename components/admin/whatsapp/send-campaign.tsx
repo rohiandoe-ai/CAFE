@@ -42,7 +42,7 @@ export function SendCampaign() {
 
   const selectedTemplate = templates.find(t => t.id === templateId)
   const previewMessage   = selectedTemplate
-    ? fillTemplate(selectedTemplate.message, { name: "Customer", cafe_name: "House of Paloma", offer: "10% off", date: "this weekend", phone: "" })
+    ? fillTemplate(selectedTemplate.message, { name: "Customer", cafe_name: "Havana Jaipur", offer: "10% off", date: "this weekend", phone: "" })
     : ""
 
   const handleSend = async () => {

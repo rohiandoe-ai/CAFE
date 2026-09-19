@@ -23,11 +23,11 @@ DROP TABLE IF EXISTS public.businesses CASCADE;
 -- ============================================
 CREATE TABLE public.businesses (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name TEXT NOT NULL DEFAULT 'House of Paloma',
-    location TEXT NOT NULL DEFAULT 'Bandra West, Mumbai',
-    google_review_url TEXT NOT NULL DEFAULT 'https://search.google.com/local/writereview?placeid=ChIJ4TflFcvJ5zsRWP5VIdUk9Qg',
+    name TEXT NOT NULL DEFAULT 'Havana Jaipur',
+    location TEXT NOT NULL DEFAULT 'Jaipur, Rajasthan',
+    google_review_url TEXT NOT NULL DEFAULT 'https://search.google.com/local/writereview?placeid=ChIJWfw4aTDJbTkR2uANiQm7B-Y',
     logo_url TEXT,
-    admin_email TEXT NOT NULL DEFAULT 'admin@houseofpaloma.com',
+    admin_email TEXT NOT NULL DEFAULT 'admin@havanajaipur.com',
     admin_password TEXT NOT NULL DEFAULT 'admin123',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
