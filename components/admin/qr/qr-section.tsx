@@ -234,10 +234,11 @@ export function QRSection() {
               /* ── Cafe template preview ── */
               <div style={{
                 width: 280,
-                backgroundImage: bgLoaded ? `url(${BG_IMAGE_URL})` : undefined,
-                background: bgLoaded ? undefined : "#f5e6c8",
+                backgroundImage: bgLoaded ? `url(${BG_IMAGE_URL})` : "none",
+                backgroundColor: "#f5e6c8",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
                 borderRadius: 16, overflow: "hidden",
                 boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
                 display: "flex", flexDirection: "column", alignItems: "center",
