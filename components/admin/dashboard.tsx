@@ -11,7 +11,7 @@ import { QRSection } from "./qr/qr-section"
 type Section = "whatsapp" | "reviews" | "menu" | "qr"
 
 const NAV: { id: Section; label: string; desc: string; icon: React.ReactNode; emoji: string }[] = [
-  { id: "whatsapp", label: "WhatsApp",  desc: "Automation & Campaigns", emoji: "💬", icon: <MessageSquare   style={{ width: 18, height: 18 }} /> },
+  { id: "whatsapp", label: "WhatsApp",  desc: "Customer CSV Export",    emoji: "💬", icon: <MessageSquare   style={{ width: 18, height: 18 }} /> },
   { id: "reviews",  label: "Reviews",   desc: "Customer Feedback",      emoji: "⭐", icon: <Star            style={{ width: 18, height: 18 }} /> },
   { id: "menu",     label: "Menu",      desc: "Items & Availability",   emoji: "🍽️", icon: <UtensilsCrossed style={{ width: 18, height: 18 }} /> },
   { id: "qr",       label: "QR Code",   desc: "Generate & Download",    emoji: "📱", icon: <QrCode          style={{ width: 18, height: 18 }} /> },
