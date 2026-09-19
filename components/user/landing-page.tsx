@@ -11,21 +11,53 @@ import { getBusiness, type Business } from "@/lib/supabase"
 type Tab = "review" | "social" | "menu"
 
 const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: "review",  label: "Review",    icon: <Star className="h-5 w-5" /> },
-  { id: "social",  label: "Social",    icon: <MessageCircle className="h-5 w-5" /> },
-  { id: "menu",    label: "Menu",      icon: <UtensilsCrossed className="h-5 w-5" /> },
+  { id: "review", label: "Review",  icon: <Star className="h-5 w-5" /> },
+  { id: "social", label: "Social",  icon: <MessageCircle className="h-5 w-5" /> },
+  { id: "menu",   label: "Menu",    icon: <UtensilsCrossed className="h-5 w-5" /> },
 ]
 
+// Fallback so page never stays blank if Supabase isn't set up yet
+const FALLBACK_BUSINESS: Business = {
+  id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  name: "House of Paloma",
+  location: "Bandra West, Mumbai",
+  google_review_url: "https://search.google.com/local/writereview?placeid=ChIJu6ZBnxTJ5zsRvHMC18xfZnQ",
+  logo_url: null,
+  admin_email: "admin@houseofpaloma.com",
+  admin_password: "admin123",
+}
+
 export function LandingPage() {
-  const [active, setActive] = useState<Tab>("review")
-  const [business, setBusiness] = useState<Business | null>(null)
+  const [active, setActive]     = useState<Tab>("review")
+  const [business, setBusiness] = useState<Business>(FALLBACK_BUSINESS)
+  const [loaded, setLoaded]     = useState(false)
 
   useEffect(() => {
-    getBusiness().then(setBusiness)
+    getBusiness()
+      .then(data => {
+        if (data) setBusiness(data)
+      })
+      .catch(console.error)
+      .finally(() => setLoaded(true))
   }, [])
 
+  // Show a minimal spinner only for the first 1.5s max
+  if (!loaded) {
+    return (
+      <div
+        className="flex min-h-svh items-center justify-center"
+        style={{ background: "#0a0a0a" }}
+      >
+        <div
+          className="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"
+          style={{ borderColor: "#c9a84c", borderTopColor: "transparent" }}
+        />
+      </div>
+    )
+  }
+
   return (
-    <div className="relative flex min-h-svh flex-col bg-background">
+    <div className="relative flex min-h-svh flex-col" style={{ background: "#0a0a0a" }}>
       {/* Ambient glow */}
       <div
         aria-hidden
@@ -76,31 +108,37 @@ export function LandingPage() {
       <nav
         className="fixed bottom-0 inset-x-0 z-50 border-t"
         style={{
-          background: "rgba(10,10,10,0.95)",
+          background: "rgba(10,10,10,0.97)",
           borderColor: "rgba(201,168,76,0.15)",
           backdropFilter: "blur(12px)",
           paddingBottom: "env(safe-area-inset-bottom)",
         }}
       >
         <div className="flex items-stretch h-16">
-          {tabs.map((tab) => {
+          {tabs.map(tab => {
             const isActive = active === tab.id
             return (
               <button
                 key={tab.id}
                 onClick={() => setActive(tab.id)}
-                className="flex flex-1 flex-col items-center justify-center gap-0.5 transition-all"
+                className="relative flex flex-1 flex-col items-center justify-center gap-0.5 transition-all"
                 style={{ color: isActive ? "#c9a84c" : "#888880" }}
               >
-                {/* Active indicator */}
-                <div
-                  className="absolute top-0 h-0.5 w-12 rounded-full transition-all duration-300"
-                  style={{ background: isActive ? "#c9a84c" : "transparent" }}
-                />
-                <span className={`transition-transform duration-200 ${isActive ? "scale-110" : "scale-100"}`}>
+                {isActive && (
+                  <div
+                    className="absolute top-0 h-0.5 w-12 rounded-full"
+                    style={{ background: "#c9a84c" }}
+                  />
+                )}
+                <span
+                  className="transition-transform duration-200"
+                  style={{ transform: isActive ? "scale(1.1)" : "scale(1)" }}
+                >
                   {tab.icon}
                 </span>
-                <span className="text-[10px] font-semibold tracking-wide">{tab.label}</span>
+                <span className="text-[10px] font-semibold tracking-wide">
+                  {tab.label}
+                </span>
               </button>
             )
           })}

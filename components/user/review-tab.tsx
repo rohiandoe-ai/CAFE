@@ -13,7 +13,7 @@ type Step = 1 | 2 | 3 | 4
 
 const SUB_RATINGS = ["Food", "Service", "Atmosphere"] as const
 
-export function ReviewTab({ business }: { business: Business | null }) {
+export function ReviewTab({ business }: { business: Business }) {
   const cafeName = business?.name ?? "House of Paloma"
   const reviewUrl = business?.google_review_url ?? ""
 

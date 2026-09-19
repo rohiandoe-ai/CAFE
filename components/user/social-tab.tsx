@@ -5,7 +5,7 @@ import { motion } from "motion/react"
 import { ExternalLink, Heart, Users, Share2 } from "lucide-react"
 import { getInstagram, trackInstagramClick, type InstagramSettings, type Business } from "@/lib/supabase"
 
-export function SocialTab({ business }: { business: Business | null }) {
+export function SocialTab({ business }: { business: Business }) {
   const [insta, setInsta] = useState<InstagramSettings | null>(null)
   const [loading, setLoading] = useState(true)
   const [clicked, setClicked] = useState(false)

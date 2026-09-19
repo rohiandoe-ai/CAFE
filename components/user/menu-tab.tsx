@@ -7,7 +7,7 @@ import { getMenuItems, subscribeToMenu, type MenuItem, type Business } from "@/l
 
 const CATEGORIES = ["All", "Coffee", "Food", "Desserts", "Drinks"]
 
-export function MenuTab({ business }: { business: Business | null }) {
+export function MenuTab({ business }: { business: Business }) {
   const [items, setItems]       = useState<MenuItem[]>([])
   const [loading, setLoading]   = useState(true)
   const [category, setCategory] = useState("All")
