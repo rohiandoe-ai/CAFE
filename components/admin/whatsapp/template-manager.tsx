@@ -143,9 +143,11 @@ export function TemplateManager() {
                 className="rounded-2xl p-4 min-h-32"
                 style={{ background: "#1a1a1a", border: "1px solid rgba(201,168,76,0.1)" }}
               >
-                <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "#f5f0e8" }}>
-                  {preview || <span style={{ color: "#888880" }}>Preview will appear here…</span>}
-                </p>
+                {preview ? (
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "#f5f0e8" }}>{preview}</p>
+                ) : (
+                  <p className="text-sm" style={{ color: "#888880" }}>Preview will appear here…</p>
+                )}
               </div>
             </div>
           </div>

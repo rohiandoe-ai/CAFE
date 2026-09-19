@@ -28,7 +28,9 @@ export function MenuManager() {
 
   useEffect(() => { load() }, [])
 
-  const set = (k: keyof typeof form, v: unknown) =>
+  type FormType = Omit<MenuItem, "id" | "cafe_id" | "created_at" | "updated_at">
+
+  const set = <K extends keyof FormType>(k: K, v: FormType[K]) =>
     setForm(f => ({ ...f, [k]: v }))
 
   const handleEdit = (item: MenuItem) => {
@@ -236,7 +238,7 @@ export function MenuManager() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="mb-1 block text-xs" style={{ color: "#888880" }}>Type</label>
-                    <select className="input-base" value={form.veg_nonveg} onChange={e => set("veg_nonveg", e.target.value)}>
+                    <select className="input-base" value={form.veg_nonveg} onChange={e => set("veg_nonveg", e.target.value as "veg" | "nonveg")}>
                       <option value="veg">🟢 Veg</option>
                       <option value="nonveg">🔴 Non-veg</option>
                     </select>

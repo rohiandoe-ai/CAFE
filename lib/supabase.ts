@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseUrl  = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey  = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
@@ -40,7 +40,7 @@ export type Review = {
   review_text: string | null
   review_copied: boolean
   created_at: string
-  customers?: Customer
+  customers?: { name: string; phone: string } | null
 }
 
 export type MenuItem = {
@@ -100,36 +100,42 @@ export async function getBusiness(): Promise<Business | null> {
     .from("businesses")
     .select("*")
     .eq("id", CAFE_ID)
-    .single()
-  if (error) { console.error(error); return null }
+    .maybeSingle()
+  if (error) { console.error("getBusiness:", error.message); return null }
   return data
 }
 
-export async function updateBusiness(updates: Partial<Business>) {
+export async function updateBusiness(
+  updates: Partial<Omit<Business, "id">>
+): Promise<Business | null> {
   const { data, error } = await supabase
     .from("businesses")
     .update(updates)
     .eq("id", CAFE_ID)
     .select()
     .single()
-  if (error) console.error(error)
+  if (error) { console.error("updateBusiness:", error.message); return null }
   return data
 }
 
 // ─── Customers ────────────────────────────────────────────────────────────────
 
-export async function upsertCustomer(name: string, phone: string): Promise<Customer | null> {
-  // Check if customer exists
-  const { data: existing } = await supabase
+export async function upsertCustomer(
+  name: string,
+  phone: string
+): Promise<Customer | null> {
+  // maybeSingle() avoids PGRST116 error when no row found
+  const { data: existing, error: fetchErr } = await supabase
     .from("customers")
     .select("*")
     .eq("cafe_id", CAFE_ID)
     .eq("phone", phone)
-    .single()
+    .maybeSingle()
+
+  if (fetchErr) console.error("upsertCustomer fetch:", fetchErr.message)
 
   if (existing) {
-    // Update visit count + last visit
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("customers")
       .update({
         name,
@@ -139,16 +145,16 @@ export async function upsertCustomer(name: string, phone: string): Promise<Custo
       .eq("id", existing.id)
       .select()
       .single()
+    if (error) { console.error("upsertCustomer update:", error.message); return null }
     return data
   }
 
-  // New customer
   const { data, error } = await supabase
     .from("customers")
     .insert({ cafe_id: CAFE_ID, name, phone })
     .select()
     .single()
-  if (error) { console.error(error); return null }
+  if (error) { console.error("upsertCustomer insert:", error.message); return null }
   return data
 }
 
@@ -158,7 +164,7 @@ export async function getCustomers(): Promise<Customer[]> {
     .select("*")
     .eq("cafe_id", CAFE_ID)
     .order("last_visit", { ascending: false })
-  if (error) { console.error(error); return [] }
+  if (error) { console.error("getCustomers:", error.message); return [] }
   return data ?? []
 }
 
@@ -177,12 +183,16 @@ export async function insertReview(review: {
     .insert({ cafe_id: CAFE_ID, ...review })
     .select()
     .single()
-  if (error) { console.error(error); return null }
+  if (error) { console.error("insertReview:", error.message); return null }
   return data
 }
 
-export async function markReviewCopied(reviewId: string) {
-  await supabase.from("reviews").update({ review_copied: true }).eq("id", reviewId)
+export async function markReviewCopied(reviewId: string): Promise<void> {
+  const { error } = await supabase
+    .from("reviews")
+    .update({ review_copied: true })
+    .eq("id", reviewId)
+  if (error) console.error("markReviewCopied:", error.message)
 }
 
 export async function getReviews(): Promise<Review[]> {
@@ -191,8 +201,8 @@ export async function getReviews(): Promise<Review[]> {
     .select("*, customers(name, phone)")
     .eq("cafe_id", CAFE_ID)
     .order("created_at", { ascending: false })
-  if (error) { console.error(error); return [] }
-  return data ?? []
+  if (error) { console.error("getReviews:", error.message); return [] }
+  return (data ?? []) as Review[]
 }
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
@@ -202,29 +212,32 @@ export async function getInstagram(): Promise<InstagramSettings | null> {
     .from("instagram_settings")
     .select("*")
     .eq("cafe_id", CAFE_ID)
-    .single()
-  if (error) { console.error(error); return null }
+    .maybeSingle()
+  if (error) { console.error("getInstagram:", error.message); return null }
   return data
 }
 
-export async function updateInstagram(updates: Partial<InstagramSettings>) {
+export async function updateInstagram(
+  updates: Partial<Omit<InstagramSettings, "id" | "cafe_id">>
+): Promise<InstagramSettings | null> {
   const { data, error } = await supabase
     .from("instagram_settings")
-    .update({ ...updates, updated_at: new Date().toISOString() })
+    .update(updates)
     .eq("cafe_id", CAFE_ID)
     .select()
     .single()
-  if (error) console.error(error)
+  if (error) { console.error("updateInstagram:", error.message); return null }
   return data
 }
 
-export async function trackInstagramClick() {
+export async function trackInstagramClick(): Promise<void> {
   const current = await getInstagram()
   if (!current) return
-  await supabase
+  const { error } = await supabase
     .from("instagram_settings")
     .update({ total_clicks: (current.total_clicks ?? 0) + 1 })
     .eq("cafe_id", CAFE_ID)
+  if (error) console.error("trackInstagramClick:", error.message)
 }
 
 // ─── Menu ─────────────────────────────────────────────────────────────────────
@@ -235,42 +248,53 @@ export async function getMenuItems(): Promise<MenuItem[]> {
     .select("*")
     .eq("cafe_id", CAFE_ID)
     .order("sort_order")
-  if (error) { console.error(error); return [] }
+  if (error) { console.error("getMenuItems:", error.message); return [] }
   return data ?? []
 }
 
-export async function insertMenuItem(item: Omit<MenuItem, "id" | "cafe_id" | "created_at" | "updated_at">): Promise<MenuItem | null> {
+export async function insertMenuItem(
+  item: Omit<MenuItem, "id" | "cafe_id" | "created_at" | "updated_at">
+): Promise<MenuItem | null> {
   const { data, error } = await supabase
     .from("menu_items")
     .insert({ cafe_id: CAFE_ID, ...item })
     .select()
     .single()
-  if (error) { console.error(error); return null }
+  if (error) { console.error("insertMenuItem:", error.message); return null }
   return data
 }
 
-export async function updateMenuItem(id: string, updates: Partial<MenuItem>) {
+export async function updateMenuItem(
+  id: string,
+  updates: Partial<Omit<MenuItem, "id" | "cafe_id" | "created_at">>
+): Promise<MenuItem | null> {
   const { data, error } = await supabase
     .from("menu_items")
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select()
     .single()
-  if (error) console.error(error)
+  if (error) { console.error("updateMenuItem:", error.message); return null }
   return data
 }
 
-export async function deleteMenuItem(id: string) {
+export async function deleteMenuItem(id: string): Promise<void> {
   const { error } = await supabase.from("menu_items").delete().eq("id", id)
-  if (error) console.error(error)
+  if (error) console.error("deleteMenuItem:", error.message)
 }
 
-export function subscribeToMenu(callback: () => void) {
+export function subscribeToMenu(callback: () => void): () => void {
   const channel = supabase
     .channel("menu_realtime")
-    .on("postgres_changes", { event: "*", schema: "public", table: "menu_items" }, callback)
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "menu_items" },
+      callback
+    )
     .subscribe()
-  return () => supabase.removeChannel(channel)
+  return () => {
+    supabase.removeChannel(channel)
+  }
 }
 
 // ─── Templates ────────────────────────────────────────────────────────────────
@@ -281,33 +305,41 @@ export async function getTemplates(): Promise<Template[]> {
     .select("*")
     .eq("cafe_id", CAFE_ID)
     .order("created_at", { ascending: false })
-  if (error) { console.error(error); return [] }
+  if (error) { console.error("getTemplates:", error.message); return [] }
   return data ?? []
 }
 
-export async function insertTemplate(t: { name: string; category: string; message: string }): Promise<Template | null> {
+export async function insertTemplate(t: {
+  name: string
+  category: string
+  message: string
+}): Promise<Template | null> {
   const { data, error } = await supabase
     .from("templates")
     .insert({ cafe_id: CAFE_ID, ...t })
     .select()
     .single()
-  if (error) { console.error(error); return null }
+  if (error) { console.error("insertTemplate:", error.message); return null }
   return data
 }
 
-export async function updateTemplate(id: string, updates: Partial<Template>) {
+export async function updateTemplate(
+  id: string,
+  updates: Partial<Pick<Template, "name" | "category" | "message">>
+): Promise<Template | null> {
   const { data, error } = await supabase
     .from("templates")
-    .update({ ...updates, updated_at: new Date().toISOString() })
+    .update(updates)
     .eq("id", id)
     .select()
     .single()
-  if (error) console.error(error)
+  if (error) { console.error("updateTemplate:", error.message); return null }
   return data
 }
 
-export async function deleteTemplate(id: string) {
-  await supabase.from("templates").delete().eq("id", id)
+export async function deleteTemplate(id: string): Promise<void> {
+  const { error } = await supabase.from("templates").delete().eq("id", id)
+  if (error) console.error("deleteTemplate:", error.message)
 }
 
 // ─── Campaigns ────────────────────────────────────────────────────────────────
@@ -318,7 +350,7 @@ export async function getCampaigns(): Promise<Campaign[]> {
     .select("*")
     .eq("cafe_id", CAFE_ID)
     .order("created_at", { ascending: false })
-  if (error) { console.error(error); return [] }
+  if (error) { console.error("getCampaigns:", error.message); return [] }
   return data ?? []
 }
 
@@ -334,31 +366,41 @@ export async function insertCampaign(c: {
     .insert({
       cafe_id: CAFE_ID,
       status: c.scheduled_at ? "scheduled" : "pending",
+      delivered_count: 0,
+      failed_count: 0,
       ...c,
     })
     .select()
     .single()
-  if (error) { console.error(error); return null }
+  if (error) { console.error("insertCampaign:", error.message); return null }
   return data
 }
 
 export async function updateCampaignStatus(
   id: string,
   status: Campaign["status"],
-  extra?: Partial<Campaign>
-) {
-  await supabase.from("campaigns").update({ status, ...extra }).eq("id", id)
+  extra?: Partial<Pick<Campaign, "delivered_count" | "failed_count" | "sent_at">>
+): Promise<void> {
+  const { error } = await supabase
+    .from("campaigns")
+    .update({ status, ...extra })
+    .eq("id", id)
+  if (error) console.error("updateCampaignStatus:", error.message)
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-export async function adminLogin(email: string, password: string): Promise<boolean> {
-  const { data } = await supabase
+export async function adminLogin(
+  email: string,
+  password: string
+): Promise<boolean> {
+  const { data, error } = await supabase
     .from("businesses")
     .select("id")
     .eq("id", CAFE_ID)
     .eq("admin_email", email)
     .eq("admin_password", password)
-    .single()
+    .maybeSingle()
+  if (error) console.error("adminLogin:", error.message)
   return !!data
 }

@@ -48,11 +48,11 @@ export function ReviewsSection() {
       ["Date","Name","Phone","Rating","Food","Service","Atmosphere","Copied"],
       ...filtered.map(r => [
         formatDate(r.created_at),
-        (r as any).customers?.name ?? "—",
-        (r as any).customers?.phone ?? "—",
+        r.customers?.name  ?? "—",
+        r.customers?.phone ?? "—",
         r.rating,
-        r.food_rating ?? "—",
-        r.service_rating ?? "—",
+        r.food_rating       ?? "—",
+        r.service_rating    ?? "—",
         r.atmosphere_rating ?? "—",
         r.review_copied ? "Yes" : "No",
       ])
@@ -151,17 +151,20 @@ export function ReviewsSection() {
 }
 
 function ReviewCard({ review: r }: { review: Review }) {
+  const customerName  = r.customers?.name  ?? "Anonymous"
+  const customerPhone = r.customers?.phone ?? null
+
   return (
     <div className="glass-card rounded-2xl p-5" style={{ borderColor: "rgba(201,168,76,0.15)" }}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <p className="font-semibold text-sm" style={{ color: "#f5f0e8" }}>
-              {(r as any).customers?.name ?? "Anonymous"}
+              {customerName}
             </p>
-            {(r as any).customers?.phone && (
+            {customerPhone && (
               <span className="text-xs" style={{ color: "#888880" }}>
-                +91 {(r as any).customers.phone}
+                +91 {customerPhone}
               </span>
             )}
           </div>
