@@ -5,9 +5,10 @@ import { QRCodeCanvas } from "qrcode.react"
 import { Download, Save, Check, Loader2, RefreshCw } from "lucide-react"
 import { getBusiness, updateBusiness } from "@/lib/supabase"
 
-// ── Color presets ─────────────────────────────────────────────────────────────
+const BG_IMAGE_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQW5zIz3sXHZGBEKGi4vBHxPQto5pB5QbW6m6y4V1iD7AsfmrDjJESomi0&s=10"
+
 const PRESETS = [
-  { label: "Cafe",   fg: "#6b2d2d", bg: "#f5e6c8" },  // matches the image
+  { label: "Cafe",   fg: "#6b2d2d", bg: "#f5e6c8" },
   { label: "Gold",   fg: "#c9a84c", bg: "#0a0a0a" },
   { label: "White",  fg: "#ffffff", bg: "#1a1a1a" },
   { label: "Black",  fg: "#1a1a1a", bg: "#ffffff" },
@@ -24,7 +25,8 @@ const SIZES = [
 type TemplateType = "cafe" | "minimal"
 
 export function QRSection() {
-  const canvasRef = useRef<HTMLDivElement>(null)
+  const canvasRef   = useRef<HTMLDivElement>(null)
+  const bgImgRef    = useRef<HTMLImageElement | null>(null)
 
   const [url,      setUrl]      = useState("")
   const [name,     setName]     = useState("House of Paloma")
@@ -35,6 +37,16 @@ export function QRSection() {
   const [saved,    setSaved]    = useState(false)
   const [saving,   setSaving]   = useState(false)
   const [loading,  setLoading]  = useState(true)
+  const [bgLoaded, setBgLoaded] = useState(false)
+
+  // Pre-load the background image once
+  useEffect(() => {
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.onload  = () => { bgImgRef.current = img; setBgLoaded(true) }
+    img.onerror = () => setBgLoaded(false)
+    img.src = BG_IMAGE_URL
+  }, [])
 
   useEffect(() => {
     if (typeof window !== "undefined") setUrl(window.location.origin)
@@ -51,13 +63,11 @@ export function QRSection() {
     setTimeout(() => setSaved(false), 2200)
   }
 
-  // ── Download: draws full Cafe template on a real Canvas ───────────────────
   const download = () => {
     const qrEl = canvasRef.current?.querySelector("canvas")
     if (!qrEl) return
-
     if (template === "cafe") {
-      downloadCafeTemplate(qrEl, name, fg, bg)
+      downloadCafeTemplate(qrEl, name, fg, bgImgRef.current)
     } else {
       downloadMinimal(qrEl, name, fg, bg)
     }
@@ -65,11 +75,8 @@ export function QRSection() {
 
   return (
     <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-      {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 className="font-serif" style={{ color: "#f5f0e8", fontSize: 26, fontWeight: 700 }}>
-          QR Generator
-        </h1>
+        <h1 className="font-serif" style={{ color: "#f5f0e8", fontSize: 26, fontWeight: 700 }}>QR Generator</h1>
         <p style={{ color: "#888880", fontSize: 14, marginTop: 4 }}>
           Generate a branded QR poster — customers scan to leave a review
         </p>
@@ -85,15 +92,15 @@ export function QRSection() {
           {/* ── LEFT: Controls ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-            {/* Template picker */}
+            {/* Template */}
             <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(201,168,76,0.12)", borderRadius: 18, padding: 20 }}>
               <p style={{ color: "#c9a84c", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
                 Template
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {([
-                  { id: "cafe",    label: "☕ Cafe Style",  desc: "Like the image" },
-                  { id: "minimal", label: "⬛ Minimal",     desc: "Clean & simple"  },
+                  { id: "cafe",    label: "☕ Cafe Style", desc: "With texture bg" },
+                  { id: "minimal", label: "⬛ Minimal",    desc: "Clean & simple"  },
                 ] as { id: TemplateType; label: string; desc: string }[]).map(t => (
                   <button key={t.id} onClick={() => setTemplate(t.id)} style={{
                     padding: "12px 10px", borderRadius: 12, cursor: "pointer", textAlign: "left",
@@ -124,6 +131,7 @@ export function QRSection() {
                   Cafe / Bar Name
                 </label>
                 <input className="input-base" value={name} onChange={e => setName(e.target.value)} placeholder="House of Paloma" />
+                <p style={{ color: "#555", fontSize: 11, marginTop: 5 }}>✏️ Name changes live in preview</p>
               </div>
               <button onClick={save} disabled={saving} style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
@@ -133,44 +141,69 @@ export function QRSection() {
                 border: `1px solid ${saved ? "rgba(76,175,125,0.3)" : "rgba(201,168,76,0.2)"}`,
                 fontSize: 13, fontWeight: 600, transition: "all 0.2s",
               } as React.CSSProperties}>
-                {saving ? <><Loader2 style={{ width: 14, height: 14, animation: "spin 0.8s linear infinite" }} /> Saving…</>
+                {saving
+                  ? <><Loader2 style={{ width: 14, height: 14, animation: "spin 0.8s linear infinite" }} /> Saving…</>
                   : saved ? <><Check style={{ width: 14, height: 14 }} /> Saved!</>
                   : <><Save style={{ width: 14, height: 14 }} /> Save name</>}
               </button>
             </div>
 
-            {/* Colors */}
-            <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(201,168,76,0.12)", borderRadius: 18, padding: 20 }}>
-              <p style={{ color: "#c9a84c", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>Colors</p>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
-                {PRESETS.map(p => (
-                  <button key={p.label} onClick={() => { setFg(p.fg); setBg(p.bg) }} title={p.label} style={{
-                    width: 38, height: 38, borderRadius: 10, cursor: "pointer",
-                    background: p.bg, border: "none",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    outline: fg === p.fg && bg === p.bg ? `2.5px solid #c9a84c` : "2.5px solid transparent",
-                    outlineOffset: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
-                  }}>
-                    <div style={{ width: 16, height: 16, borderRadius: 4, background: p.fg }} />
-                  </button>
-                ))}
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {[
-                  { label: "QR Color", val: fg, set: setFg },
-                  { label: "Background", val: bg, set: setBg },
-                ].map(c => (
-                  <div key={c.label}>
-                    <label style={{ display: "block", fontSize: 11, color: "#888880", marginBottom: 5, fontWeight: 600 }}>{c.label}</label>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(201,168,76,0.15)", borderRadius: 10, padding: "6px 10px" }}>
-                      <input type="color" value={c.val} onChange={e => c.set(e.target.value)}
-                        style={{ width: 28, height: 28, border: "none", background: "none", cursor: "pointer" }} />
-                      <span style={{ color: "#f5f0e8", fontSize: 12, fontFamily: "monospace" }}>{c.val.toUpperCase()}</span>
+            {/* Colors — only shown for minimal */}
+            {template === "minimal" && (
+              <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(201,168,76,0.12)", borderRadius: 18, padding: 20 }}>
+                <p style={{ color: "#c9a84c", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>Colors</p>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+                  {PRESETS.map(p => (
+                    <button key={p.label} onClick={() => { setFg(p.fg); setBg(p.bg) }} title={p.label} style={{
+                      width: 38, height: 38, borderRadius: 10, cursor: "pointer",
+                      background: p.bg, border: "none",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      outline: fg === p.fg && bg === p.bg ? "2.5px solid #c9a84c" : "2.5px solid transparent",
+                      outlineOffset: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
+                    }}>
+                      <div style={{ width: 16, height: 16, borderRadius: 4, background: p.fg }} />
+                    </button>
+                  ))}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {[
+                    { label: "QR Color", val: fg, set: setFg },
+                    { label: "Background", val: bg, set: setBg },
+                  ].map(c => (
+                    <div key={c.label}>
+                      <label style={{ display: "block", fontSize: 11, color: "#888880", marginBottom: 5, fontWeight: 600 }}>{c.label}</label>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(201,168,76,0.15)", borderRadius: 10, padding: "6px 10px" }}>
+                        <input type="color" value={c.val} onChange={e => c.set(e.target.value)}
+                          style={{ width: 28, height: 28, border: "none", background: "none", cursor: "pointer" }} />
+                        <span style={{ color: "#f5f0e8", fontSize: 12, fontFamily: "monospace" }}>{c.val.toUpperCase()}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Cafe color: only QR color picker */}
+            {template === "cafe" && (
+              <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(201,168,76,0.12)", borderRadius: 18, padding: 20 }}>
+                <p style={{ color: "#c9a84c", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>QR Color</p>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+                  {["#6b2d2d","#1a1a1a","#1a2b5f","#2d6b3a","#c9a84c","#9b59b6"].map(c => (
+                    <button key={c} onClick={() => setFg(c)} style={{
+                      width: 34, height: 34, borderRadius: 8, cursor: "pointer",
+                      background: c, border: "none",
+                      outline: fg === c ? "2.5px solid #c9a84c" : "2.5px solid transparent",
+                      outlineOffset: 2, boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                    }} />
+                  ))}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(201,168,76,0.15)", borderRadius: 10, padding: "6px 10px", width: "fit-content" }}>
+                  <input type="color" value={fg} onChange={e => setFg(e.target.value)}
+                    style={{ width: 28, height: 28, border: "none", background: "none", cursor: "pointer" }} />
+                  <span style={{ color: "#f5f0e8", fontSize: 12, fontFamily: "monospace" }}>Custom: {fg.toUpperCase()}</span>
+                </div>
+              </div>
+            )}
 
             {/* Size */}
             <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(201,168,76,0.12)", borderRadius: 18, padding: 20 }}>
@@ -193,46 +226,66 @@ export function QRSection() {
 
           {/* ── RIGHT: Preview + Download ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center" }}>
-            <p style={{ color: "#888880", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>Live Preview</p>
+            <p style={{ color: "#888880", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              Live Preview
+            </p>
 
-            {/* Cafe template preview */}
             {template === "cafe" ? (
+              /* ── Cafe template preview ── */
               <div style={{
-                width: 280, background: bg,
+                width: 280,
+                backgroundImage: bgLoaded ? `url(${BG_IMAGE_URL})` : undefined,
+                background: bgLoaded ? undefined : "#f5e6c8",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
                 borderRadius: 16, overflow: "hidden",
                 boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
                 display: "flex", flexDirection: "column", alignItems: "center",
-                padding: "24px 20px 28px", gap: 0,
+                padding: "28px 20px 32px", gap: 0,
                 position: "relative",
               }}>
-                {/* Texture overlay */}
+                {/* Overlay to soften bg image */}
                 <div style={{
-                  position: "absolute", inset: 0, borderRadius: 16,
-                  background: "repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.015) 2px, rgba(0,0,0,0.015) 4px)",
+                  position: "absolute", inset: 0,
+                  background: "rgba(245,230,200,0.55)",
                   pointerEvents: "none",
                 }} />
 
-                {/* ADD LOGO text */}
-                <p style={{ color: fg + "88", fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 4 }}>
-                  ADD LOGO
+                {/* Outer border */}
+                <div style={{
+                  position: "absolute", inset: 10,
+                  border: `1.5px solid ${fg}55`,
+                  borderRadius: 10, pointerEvents: "none",
+                }} />
+
+                {/* Cafe name (replaces ADD LOGO) */}
+                <p className="font-serif" style={{
+                  position: "relative", zIndex: 1,
+                  color: fg, fontSize: 15, fontWeight: 800,
+                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  marginBottom: 6, textAlign: "center",
+                }}>
+                  {name}
                 </p>
 
-                {/* Menu heading */}
+                {/* "Menu" heading */}
                 <p className="font-serif" style={{
-                  color: fg, fontSize: 42, fontWeight: 800,
+                  position: "relative", zIndex: 1,
+                  color: fg, fontSize: 46, fontWeight: 800,
                   fontStyle: "italic", lineHeight: 1, marginBottom: 18,
                   textShadow: `1px 1px 0 ${fg}22`,
                 }}>
-                  {name.split(" ")[0]}
+                  Menu
                 </p>
 
-                {/* QR */}
+                {/* QR on white bg */}
                 <div
                   ref={canvasRef}
                   style={{
-                    background: "#ffffff",
-                    padding: 10, borderRadius: 8,
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
+                    position: "relative", zIndex: 1,
+                    background: "#ffffff", padding: 10,
+                    borderRadius: 8,
+                    boxShadow: "0 2px 16px rgba(0,0,0,0.25)",
                     marginBottom: 18,
                   }}
                 >
@@ -247,15 +300,19 @@ export function QRSection() {
                 </div>
 
                 {/* Scan Now */}
-                <p style={{ color: fg, fontSize: 16, fontWeight: 600, letterSpacing: "0.06em", marginBottom: 10 }}>
+                <p style={{
+                  position: "relative", zIndex: 1,
+                  color: fg, fontSize: 17, fontWeight: 700,
+                  letterSpacing: "0.08em", marginBottom: 12,
+                }}>
                   Scan Now
                 </p>
 
-                {/* Coffee cup decoration */}
-                <p style={{ fontSize: 28, marginTop: 4 }}>☕</p>
+                {/* Coffee cup */}
+                <p style={{ position: "relative", zIndex: 1, fontSize: 28 }}>☕</p>
               </div>
             ) : (
-              /* Minimal preview */
+              /* ── Minimal preview ── */
               <div style={{
                 background: bg, padding: 24, borderRadius: 16,
                 boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
@@ -279,8 +336,11 @@ export function QRSection() {
             )}
 
             {/* Download */}
-            <button className="btn-gold" onClick={download} disabled={!url}
-              style={{ width: "100%", maxWidth: 300, height: 52, fontSize: 15, borderRadius: 14, boxShadow: "0 0 24px rgba(201,168,76,0.2)" }}>
+            <button className="btn-gold" onClick={download} disabled={!url} style={{
+              width: "100%", maxWidth: 300, height: 52,
+              fontSize: 15, borderRadius: 14,
+              boxShadow: "0 0 24px rgba(201,168,76,0.2)",
+            }}>
               <Download style={{ width: 18, height: 18 }} />
               Download PNG
             </button>
@@ -297,115 +357,121 @@ export function QRSection() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media (min-width: 640px) { .qr-grid { grid-template-columns: 1fr 320px !important; align-items: start; } }
+        @media (min-width: 640px) {
+          .qr-grid { grid-template-columns: 1fr 320px !important; align-items: start; }
+        }
       `}</style>
     </div>
   )
 }
 
-// ── Canvas download: Cafe Menu template ──────────────────────────────────────
-function downloadCafeTemplate(qrEl: HTMLCanvasElement, name: string, fg: string, bg: string) {
-  const W = 500, H = 800
+// ── Download: Cafe template with background image ─────────────────────────────
+function downloadCafeTemplate(
+  qrEl: HTMLCanvasElement,
+  name: string,
+  fg: string,
+  bgImg: HTMLImageElement | null
+) {
+  const W = 500, H = 820
   const out = document.createElement("canvas")
   out.width = W; out.height = H
   const ctx = out.getContext("2d")
   if (!ctx) return
 
-  // Background fill
-  ctx.fillStyle = bg
-  ctx.fillRect(0, 0, W, H)
-
-  // Subtle texture (diagonal lines)
-  ctx.strokeStyle = "rgba(0,0,0,0.04)"
-  ctx.lineWidth = 1
-  for (let i = -H; i < W + H; i += 8) {
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H, H); ctx.stroke()
+  // Background — image or fallback color
+  if (bgImg) {
+    ctx.drawImage(bgImg, 0, 0, W, H)
+  } else {
+    ctx.fillStyle = "#f5e6c8"
+    ctx.fillRect(0, 0, W, H)
   }
 
-  // Outer border frame
-  ctx.strokeStyle = fg + "55"
+  // Semi-transparent overlay so text is readable
+  ctx.fillStyle = "rgba(245,230,200,0.5)"
+  ctx.fillRect(0, 0, W, H)
+
+  // Outer border
+  ctx.strokeStyle = fg + "66"
   ctx.lineWidth = 3
-  const r = 24
-  roundRect(ctx, 16, 16, W - 32, H - 32, r)
+  roundRect(ctx, 16, 16, W - 32, H - 32, 22)
   ctx.stroke()
 
-  // Inner decorative border
-  ctx.strokeStyle = fg + "30"
+  // Inner border
+  ctx.strokeStyle = fg + "33"
   ctx.lineWidth = 1.5
-  roundRect(ctx, 24, 24, W - 48, H - 48, r - 4)
+  roundRect(ctx, 26, 26, W - 52, H - 52, 18)
   ctx.stroke()
 
-  // "ADD LOGO" text
-  ctx.fillStyle = fg + "66"
-  ctx.font = "bold 16px Arial, sans-serif"
+  // Cafe / Bar Name (top, replaces ADD LOGO)
+  ctx.fillStyle = fg
+  ctx.font = "bold 22px Georgia, serif"
   ctx.textAlign = "center"
-  ctx.letterSpacing = "4px"
-  ctx.fillText("ADD LOGO", W / 2, 80)
+  ctx.letterSpacing = "3px"
+  ctx.fillText(name.toUpperCase(), W / 2, 78)
   ctx.letterSpacing = "0px"
 
-  // Decorative line under ADD LOGO
-  ctx.strokeStyle = fg + "44"
-  ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(W / 2 - 60, 90); ctx.lineTo(W / 2 + 60, 90); ctx.stroke()
+  // Decorative line under name
+  ctx.strokeStyle = fg + "55"
+  ctx.lineWidth = 1.5
+  const nameW = Math.min(ctx.measureText(name.toUpperCase()).width + 40, 240)
+  ctx.beginPath()
+  ctx.moveTo(W / 2 - nameW / 2, 90)
+  ctx.lineTo(W / 2 + nameW / 2, 90)
+  ctx.stroke()
 
-  // "Menu" big heading (italic serif)
+  // "Menu" heading italic
   ctx.fillStyle = fg
-  ctx.font = "italic bold 86px Georgia, serif"
+  ctx.font = "italic bold 90px Georgia, serif"
   ctx.textAlign = "center"
-  ctx.fillText("Menu", W / 2, 185)
+  ctx.fillText("Menu", W / 2, 192)
 
   // Underline for Menu
   ctx.strokeStyle = fg + "55"
   ctx.lineWidth = 2
-  ctx.beginPath(); ctx.moveTo(W / 2 - 100, 196); ctx.lineTo(W / 2 + 100, 196); ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(W / 2 - 110, 202)
+  ctx.lineTo(W / 2 + 110, 202)
+  ctx.stroke()
 
-  // QR Code block (white bg, centered)
+  // QR white bg
   const qrSize = 280
   const qx = (W - qrSize) / 2
-  const qy = 230
-
-  // White QR background with shadow
+  const qy = 236
   ctx.shadowColor = "rgba(0,0,0,0.2)"
-  ctx.shadowBlur  = 16
+  ctx.shadowBlur = 18
   ctx.fillStyle = "#ffffff"
   roundRect(ctx, qx - 14, qy - 14, qrSize + 28, qrSize + 28, 12)
   ctx.fill()
   ctx.shadowBlur = 0
-
-  // Draw actual QR
   ctx.drawImage(qrEl, qx, qy, qrSize, qrSize)
 
-  // "Scan Now" text
+  // "Scan Now"
   ctx.fillStyle = fg
-  ctx.font = "600 28px Georgia, serif"
+  ctx.font = "600 30px Georgia, serif"
   ctx.textAlign = "center"
-  ctx.letterSpacing = "2px"
-  ctx.fillText("Scan Now", W / 2, qy + qrSize + 60)
+  ctx.letterSpacing = "3px"
+  ctx.fillText("Scan Now", W / 2, qy + qrSize + 62)
   ctx.letterSpacing = "0px"
 
-  // Decorative dots row
-  ctx.fillStyle = fg + "66"
+  // Dots
+  ctx.fillStyle = fg + "77"
   for (let i = -2; i <= 2; i++) {
-    ctx.beginPath(); ctx.arc(W / 2 + i * 16, qy + qrSize + 82, i === 0 ? 4 : 3, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath()
+    ctx.arc(W / 2 + i * 16, qy + qrSize + 82, i === 0 ? 4 : 2.5, 0, Math.PI * 2)
+    ctx.fill()
   }
 
-  // Coffee cup emoji area (drawn as text)
-  ctx.font = "48px Arial"
+  // Coffee cup emoji
+  ctx.font = "52px Arial"
   ctx.textAlign = "center"
-  ctx.fillText("☕", W / 2 + 120, H - 80)
+  ctx.fillText("☕", W / 2 + 130, H - 68)
 
-  // Coffee beans dots (decorative)
+  // Decorative stars
   ctx.fillStyle = fg + "55"
-  ctx.font = "22px Arial"
-  ctx.fillText("✦", 50,  H - 120)
-  ctx.fillText("✦", 430, H - 160)
-  ctx.fillText("✦", 60,  H - 200)
-
-  // Cafe name at bottom
-  ctx.fillStyle = fg + "99"
-  ctx.font = "500 18px Georgia, serif"
-  ctx.textAlign = "center"
-  ctx.fillText(name, W / 2, H - 40)
+  ctx.font = "20px Arial"
+  ctx.fillText("✦", 52,  H - 110)
+  ctx.fillText("✦", 440, H - 150)
+  ctx.fillText("✦", 60,  H - 190)
 
   const a = document.createElement("a")
   a.download = `${name.replace(/\s+/g, "-").toLowerCase()}-menu-qr.png`
@@ -413,7 +479,7 @@ function downloadCafeTemplate(qrEl: HTMLCanvasElement, name: string, fg: string,
   a.click()
 }
 
-// ── Canvas download: Minimal template ────────────────────────────────────────
+// ── Download: Minimal template ────────────────────────────────────────────────
 function downloadMinimal(qrEl: HTMLCanvasElement, name: string, fg: string, bg: string) {
   const pad = 52, labelH = 64
   const qs  = qrEl.width
@@ -424,10 +490,13 @@ function downloadMinimal(qrEl: HTMLCanvasElement, name: string, fg: string, bg: 
   if (!ctx) return
 
   ctx.fillStyle = bg
-  roundRect(ctx, 0, 0, W, H, 28); ctx.fill()
+  roundRect(ctx, 0, 0, W, H, 28)
+  ctx.fill()
 
-  ctx.strokeStyle = fg + "44"; ctx.lineWidth = 2
-  roundRect(ctx, 10, 10, W - 20, H - 20, 22); ctx.stroke()
+  ctx.strokeStyle = fg + "44"
+  ctx.lineWidth = 2
+  roundRect(ctx, 10, 10, W - 20, H - 20, 22)
+  ctx.stroke()
 
   ctx.drawImage(qrEl, pad, pad, qs, qs)
 
@@ -442,7 +511,7 @@ function downloadMinimal(qrEl: HTMLCanvasElement, name: string, fg: string, bg: 
   a.click()
 }
 
-// ── Helper: rounded rect path ─────────────────────────────────────────────────
+// ── Helper ────────────────────────────────────────────────────────────────────
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath()
   ctx.moveTo(x + r, y)
