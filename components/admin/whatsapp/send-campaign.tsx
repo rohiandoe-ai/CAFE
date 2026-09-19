@@ -1,18 +1,20 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Send, Users, FileText, Calendar, Loader2, Check } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { Send, Users, FileText, Calendar, Loader2, Check, ChevronRight } from "lucide-react"
 import { getCustomers, getTemplates, insertCampaign, type Template, type Customer } from "@/lib/supabase"
 import { fillTemplate, daysSince } from "@/lib/utils"
 
 const SEGMENTS = [
-  { id: "all",         label: "All Customers",       desc: "Everyone" },
-  { id: "inactive15",  label: "Inactive 15+ days",   desc: "Haven't visited in 15 days" },
-  { id: "inactive30",  label: "Inactive 30+ days",   desc: "Haven't visited in 30 days" },
-  { id: "new",         label: "Never Returned",       desc: "Only 1 visit" },
+  { id: "all",        label: "All Customers",     desc: "Everyone in your list" },
+  { id: "inactive15", label: "Inactive 15+ days", desc: "Haven't visited in 15 days" },
+  { id: "inactive30", label: "Inactive 30+ days", desc: "Haven't visited in 30 days" },
+  { id: "new",        label: "Never Returned",    desc: "Only 1 visit so far" },
 ]
 
 type Step = 1 | 2 | 3
+
+const STEP_LABELS = ["Select Segment", "Choose Template", "Preview & Send"]
 
 export function SendCampaign() {
   const [step, setStep]             = useState<Step>(1)
@@ -20,8 +22,8 @@ export function SendCampaign() {
   const [templates, setTemplates]   = useState<Template[]>([])
   const [segment, setSegment]       = useState("all")
   const [templateId, setTemplateId] = useState<string | null>(null)
-  const [scheduleDate, setScheduleDate] = useState("")
-  const [scheduleTime, setScheduleTime] = useState("")
+  const [scheduleDate, setDate]     = useState("")
+  const [scheduleTime, setTime]     = useState("")
   const [sending, setSending]       = useState(false)
   const [sent, setSent]             = useState(false)
 
@@ -39,145 +41,142 @@ export function SendCampaign() {
   })
 
   const selectedTemplate = templates.find(t => t.id === templateId)
-
-  const previewMessage = selectedTemplate
-    ? fillTemplate(selectedTemplate.message, {
-        name: "Customer",
-        cafe_name: "House of Paloma",
-        offer: "10% off",
-        date: "this weekend",
-        phone: "",
-      })
+  const previewMessage   = selectedTemplate
+    ? fillTemplate(selectedTemplate.message, { name: "Customer", cafe_name: "House of Paloma", offer: "10% off", date: "this weekend", phone: "" })
     : ""
 
   const handleSend = async () => {
     if (!templateId || filteredCustomers.length === 0) return
     setSending(true)
-
     const scheduledAt = scheduleDate && scheduleTime
       ? new Date(`${scheduleDate}T${scheduleTime}`).toISOString()
       : undefined
-
-    await insertCampaign({
-      template_id: templateId,
-      template_name: selectedTemplate?.name,
-      segment,
-      total_sent: filteredCustomers.length,
-      scheduled_at: scheduledAt,
-    })
-
-    setSending(false)
-    setSent(true)
+    await insertCampaign({ template_id: templateId, template_name: selectedTemplate?.name, segment, total_sent: filteredCustomers.length, scheduled_at: scheduledAt })
+    setSending(false); setSent(true)
     setTimeout(() => { setSent(false); setStep(1); setSegment("all"); setTemplateId(null) }, 3000)
   }
 
   if (sent) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <div
-          className="grid h-16 w-16 place-items-center rounded-full"
-          style={{ background: "rgba(76,175,125,0.15)", border: "1px solid rgba(76,175,125,0.3)" }}
-        >
-          <Check className="h-8 w-8" style={{ color: "#4caf7d" }} />
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 0", gap: 16 }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: "50%",
+          background: "rgba(76,175,125,0.12)", border: "1px solid rgba(76,175,125,0.3)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <Check style={{ width: 28, height: 28, color: "#4caf7d" }} />
         </div>
-        <p className="text-lg font-semibold" style={{ color: "#f5f0e8" }}>Campaign Created!</p>
-        <p className="text-sm" style={{ color: "#888880" }}>
-          {filteredCustomers.length} recipients queued
-        </p>
+        <p style={{ color: "#f5f0e8", fontSize: 18, fontWeight: 700 }}>Campaign Created!</p>
+        <p style={{ color: "#888880", fontSize: 14 }}>{filteredCustomers.length} recipients queued</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4 max-w-2xl">
-      {/* Step indicator */}
-      <div className="flex items-center gap-2 mb-6">
-        {[1,2,3].map(s => (
-          <div key={s} className="flex items-center gap-2">
-            <div
-              className="grid h-7 w-7 place-items-center rounded-full text-xs font-bold"
-              style={{
-                background: step >= s ? "#c9a84c" : "rgba(255,255,255,0.05)",
-                color: step >= s ? "#0a0a0a" : "#888880",
-              }}
-            >
-              {s}
-            </div>
-            {s < 3 && <div className="h-px w-8" style={{ background: step > s ? "#c9a84c" : "rgba(201,168,76,0.2)" }} />}
-          </div>
-        ))}
-        <p className="ml-2 text-sm" style={{ color: "#888880" }}>
-          {step === 1 ? "Select Segment" : step === 2 ? "Choose Template" : "Preview & Send"}
-        </p>
+    <div style={{ maxWidth: 580, display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Step progress bar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+        {[1,2,3].map((s, i) => {
+          const done = step > s
+          const curr = step === s
+          return (
+            <React.Fragment key={s}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: "50%",
+                  background: done ? "#c9a84c" : curr ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.05)",
+                  border: `2px solid ${done || curr ? "#c9a84c" : "rgba(255,255,255,0.1)"}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 12, fontWeight: 700,
+                  color: done ? "#0a0a0a" : curr ? "#c9a84c" : "#555",
+                  transition: "all 0.3s",
+                }}>
+                  {done ? <Check style={{ width: 14, height: 14 }} /> : s}
+                </div>
+                <span style={{ fontSize: 10, color: curr ? "#c9a84c" : "#555", fontWeight: curr ? 700 : 400, whiteSpace: "nowrap" }}>
+                  {STEP_LABELS[i]}
+                </span>
+              </div>
+              {i < 2 && (
+                <div style={{
+                  flex: 1, height: 2, marginBottom: 16, marginLeft: 4, marginRight: 4,
+                  background: step > s ? "#c9a84c" : "rgba(255,255,255,0.08)",
+                  transition: "background 0.3s",
+                }} />
+              )}
+            </React.Fragment>
+          )
+        })}
       </div>
 
       {/* STEP 1: Segment */}
       {step === 1 && (
-        <div className="space-y-3">
-          {SEGMENTS.map(s => (
-            <button
-              key={s.id}
-              onClick={() => setSegment(s.id)}
-              className="w-full glass-card rounded-xl p-4 text-left transition-all"
-              style={{
-                borderColor: segment === s.id ? "rgba(201,168,76,0.4)" : "rgba(201,168,76,0.1)",
-                background: segment === s.id ? "rgba(201,168,76,0.08)" : "rgba(255,255,255,0.02)",
-              }}
-            >
-              <div className="flex items-center justify-between">
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {SEGMENTS.map(s => {
+            const count = s.id === segment ? filteredCustomers.length : null
+            return (
+              <button key={s.id} onClick={() => setSegment(s.id)} style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "14px 16px", borderRadius: 12, cursor: "pointer", textAlign: "left",
+                background: segment === s.id ? "rgba(201,168,76,0.08)" : "rgba(255,255,255,0.025)",
+                border: `1.5px solid ${segment === s.id ? "#c9a84c" : "rgba(255,255,255,0.07)"}`,
+                transition: "all 0.15s",
+              }}>
                 <div>
-                  <p className="font-medium text-sm" style={{ color: "#f5f0e8" }}>{s.label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#888880" }}>{s.desc}</p>
+                  <p style={{ color: "#f5f0e8", fontWeight: 600, fontSize: 14 }}>{s.label}</p>
+                  <p style={{ color: "#888880", fontSize: 12, marginTop: 2 }}>{s.desc}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" style={{ color: "#888880" }} />
-                  <span className="font-bold text-sm" style={{ color: "#c9a84c" }}>
-                    {segment === s.id ? filteredCustomers.length : "–"}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Users style={{ width: 16, height: 16, color: "#888" }} />
+                  <span style={{ color: "#c9a84c", fontWeight: 700, fontSize: 16, minWidth: 20, textAlign: "right" }}>
+                    {count !== null ? count : "–"}
                   </span>
                 </div>
-              </div>
-            </button>
-          ))}
-          <p className="text-sm text-center py-2" style={{ color: "#c9a84c" }}>
+              </button>
+            )
+          })}
+
+          <p style={{ textAlign: "center", color: "#c9a84c", fontSize: 13, fontWeight: 600, padding: "4px 0" }}>
             <strong>{filteredCustomers.length}</strong> customers selected
           </p>
-          <button className="btn-gold" onClick={() => setStep(2)}>
-            Next <FileText className="h-4 w-4" />
+
+          <button className="btn-gold" onClick={() => setStep(2)} style={{ height: 50, borderRadius: 12 }}>
+            Next <ChevronRight style={{ width: 16, height: 16 }} />
           </button>
         </div>
       )}
 
       {/* STEP 2: Template */}
       {step === 2 && (
-        <div className="space-y-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {templates.length === 0 ? (
-            <p className="text-center py-10" style={{ color: "#888880" }}>No templates yet. Create one first.</p>
+            <div style={{ textAlign: "center", padding: "40px 0" }}>
+              <FileText style={{ width: 36, height: 36, color: "#555", margin: "0 auto 12px" }} />
+              <p style={{ color: "#888" }}>No templates yet — create one first</p>
+            </div>
           ) : (
             templates.map(t => (
-              <button
-                key={t.id}
-                onClick={() => setTemplateId(t.id)}
-                className="w-full glass-card rounded-xl p-4 text-left transition-all"
-                style={{
-                  borderColor: templateId === t.id ? "rgba(201,168,76,0.4)" : "rgba(201,168,76,0.1)",
-                  background: templateId === t.id ? "rgba(201,168,76,0.08)" : "rgba(255,255,255,0.02)",
-                }}
-              >
-                <p className="font-medium text-sm" style={{ color: "#f5f0e8" }}>{t.name}</p>
-                <p className="text-xs mt-1 line-clamp-2" style={{ color: "#888880" }}>{t.message}</p>
+              <button key={t.id} onClick={() => setTemplateId(t.id)} style={{
+                display: "block", padding: "14px 16px", borderRadius: 12, cursor: "pointer", textAlign: "left",
+                background: templateId === t.id ? "rgba(201,168,76,0.08)" : "rgba(255,255,255,0.025)",
+                border: `1.5px solid ${templateId === t.id ? "#c9a84c" : "rgba(255,255,255,0.07)"}`,
+                transition: "all 0.15s",
+              }}>
+                <p style={{ color: "#f5f0e8", fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{t.name}</p>
+                <p style={{ color: "#888", fontSize: 12 }} className="line-clamp-2">{t.message}</p>
               </button>
             ))
           )}
-          <div className="flex gap-3">
-            <button
-              onClick={() => setStep(1)}
-              className="rounded-xl px-4 py-3 text-sm flex-1"
-              style={{ color: "#888880", border: "1px solid rgba(201,168,76,0.1)" }}
-            >
-              Back
-            </button>
-            <button className="btn-gold flex-1" onClick={() => setStep(3)} disabled={!templateId}>
-              Next <Send className="h-4 w-4" />
+
+          <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+            <button onClick={() => setStep(1)} style={{
+              flex: 1, height: 48, borderRadius: 12, cursor: "pointer",
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+              color: "#888", fontSize: 14,
+            }}>Back</button>
+            <button className="btn-gold" onClick={() => setStep(3)} disabled={!templateId}
+              style={{ flex: 2, height: 48, borderRadius: 12 }}>
+              Next <ChevronRight style={{ width: 16, height: 16 }} />
             </button>
           </div>
         </div>
@@ -185,40 +184,65 @@ export function SendCampaign() {
 
       {/* STEP 3: Preview & Send */}
       {step === 3 && (
-        <div className="space-y-4">
-          <div className="glass-card rounded-2xl p-5" style={{ borderColor: "rgba(201,168,76,0.15)" }}>
-            <p className="text-xs font-medium mb-3" style={{ color: "#888880" }}>Message Preview</p>
-            <p className="text-sm leading-relaxed" style={{ color: "#f5f0e8" }}>{previewMessage}</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {/* Message preview */}
+          <div style={{
+            background: "rgba(255,255,255,0.025)",
+            border: "1px solid rgba(201,168,76,0.15)",
+            borderRadius: 14, padding: 16,
+          }}>
+            <p style={{ color: "#888880", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>
+              Message Preview
+            </p>
+            <p style={{ color: "#f5f0e8", fontSize: 13, lineHeight: 1.65 }}>{previewMessage}</p>
           </div>
 
-          <div
-            className="flex items-center justify-between rounded-xl p-4"
-            style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)" }}
-          >
-            <span className="text-sm" style={{ color: "#888880" }}>Recipients</span>
-            <span className="font-bold" style={{ color: "#c9a84c" }}>{filteredCustomers.length} customers</span>
+          {/* Recipients */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.15)",
+            borderRadius: 12, padding: "12px 16px",
+          }}>
+            <span style={{ color: "#888880", fontSize: 13 }}>Recipients</span>
+            <span style={{ color: "#c9a84c", fontWeight: 800, fontSize: 18 }}>{filteredCustomers.length}</span>
           </div>
 
-          {/* Schedule */}
-          <div className="space-y-2">
-            <p className="text-sm font-medium" style={{ color: "#888880" }}>Schedule (optional)</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 shrink-0" style={{ color: "#888880" }} />
-                <input type="date" className="input-base py-2 text-sm" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} />
-              </div>
-              <input type="time" className="input-base py-2 text-sm" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)} />
+          {/* Schedule (optional) */}
+          <div style={{
+            background: "rgba(255,255,255,0.025)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 14, padding: 16,
+          }}>
+            <p style={{ color: "#888880", fontSize: 12, fontWeight: 600, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+              <Calendar style={{ width: 14, height: 14 }} /> Schedule (optional)
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <input type="date" className="input-base" style={{ height: 40, fontSize: 13 }}
+                value={scheduleDate} onChange={e => setDate(e.target.value)} />
+              <input type="time" className="input-base" style={{ height: 40, fontSize: 13 }}
+                value={scheduleTime} onChange={e => setTime(e.target.value)} />
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <button onClick={() => setStep(2)} className="rounded-xl px-4 py-3 text-sm flex-1" style={{ color: "#888880", border: "1px solid rgba(201,168,76,0.1)" }}>Back</button>
-            <button className="btn-gold flex-1" onClick={handleSend} disabled={sending}>
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : scheduleDate ? <><Calendar className="h-4 w-4" /> Schedule</> : <><Send className="h-4 w-4" /> Send Now</>}
+          <div style={{ display: "flex", gap: 10 }}>
+            <button onClick={() => setStep(2)} style={{
+              flex: 1, height: 50, borderRadius: 12, cursor: "pointer",
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+              color: "#888", fontSize: 14,
+            }}>Back</button>
+            <button className="btn-gold" onClick={handleSend} disabled={sending} style={{ flex: 2, height: 50, borderRadius: 12 }}>
+              {sending
+                ? <Loader2 style={{ width: 18, height: 18, animation: "spin 0.8s linear infinite" }} />
+                : scheduleDate
+                  ? <><Calendar style={{ width: 16, height: 16 }} /> Schedule</>
+                  : <><Send style={{ width: 16, height: 16 }} /> Send Now</>
+              }
             </button>
           </div>
         </div>
       )}
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }
