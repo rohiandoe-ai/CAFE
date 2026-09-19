@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "motion/react"
+import React, { useEffect, useState } from "react"
+import { AnimatePresence, motion } from "motion/react"
 import { Star, MessageCircle, UtensilsCrossed } from "lucide-react"
 import { ReviewTab } from "./review-tab"
 import { SocialTab } from "./social-tab"
@@ -10,14 +10,13 @@ import { getBusiness, type Business } from "@/lib/supabase"
 
 type Tab = "review" | "social" | "menu"
 
-const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: "review", label: "Review",  icon: <Star className="h-5 w-5" /> },
-  { id: "social", label: "Social",  icon: <MessageCircle className="h-5 w-5" /> },
-  { id: "menu",   label: "Menu",    icon: <UtensilsCrossed className="h-5 w-5" /> },
+const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: "review", label: "Review",  icon: <Star className="h-[18px] w-[18px]" /> },
+  { id: "social", label: "Social",  icon: <MessageCircle className="h-[18px] w-[18px]" /> },
+  { id: "menu",   label: "Menu",    icon: <UtensilsCrossed className="h-[18px] w-[18px]" /> },
 ]
 
-// Fallback so page never stays blank if Supabase isn't set up yet
-const FALLBACK_BUSINESS: Business = {
+const FALLBACK: Business = {
   id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
   name: "House of Paloma",
   location: "Bandra West, Mumbai",
@@ -28,129 +27,117 @@ const FALLBACK_BUSINESS: Business = {
 }
 
 export function LandingPage() {
-  const [active, setActive]     = useState<Tab>("review")
-  const [business, setBusiness] = useState<Business>(FALLBACK_BUSINESS)
-  const [loaded, setLoaded]     = useState(false)
+  const [tab, setTab]           = useState<Tab>("review")
+  const [business, setBusiness] = useState<Business>(FALLBACK)
+  const [ready, setReady]       = useState(false)
 
   useEffect(() => {
-    // Max 2s wait — show content even if Supabase is slow
-    const timeout = setTimeout(() => setLoaded(true), 2000)
-
+    const timer = setTimeout(() => setReady(true), 2000)
     getBusiness()
-      .then(data => {
-        if (data) setBusiness(data)
-      })
+      .then(d => { if (d) setBusiness(d) })
       .catch(console.error)
-      .finally(() => {
-        clearTimeout(timeout)
-        setLoaded(true)
-      })
-
-    return () => clearTimeout(timeout)
+      .finally(() => { clearTimeout(timer); setReady(true) })
+    return () => clearTimeout(timer)
   }, [])
 
-  // Show a minimal spinner only for the first 1.5s max
-  if (!loaded) {
+  if (!ready) {
     return (
-      <div
-        className="flex min-h-svh items-center justify-center"
-        style={{ background: "#0a0a0a" }}
-      >
+      <div className="flex min-h-svh flex-col items-center justify-center gap-4" style={{ background: "#0a0a0a" }}>
         <div
-          className="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"
-          style={{ borderColor: "#c9a84c", borderTopColor: "transparent" }}
+          className="h-12 w-12 rounded-full border-2 border-t-transparent"
+          style={{
+            borderColor: "#c9a84c",
+            borderTopColor: "transparent",
+            animation: "spin 0.8s linear infinite",
+          }}
         />
+        <p className="text-sm" style={{ color: "#888880" }}>Loading…</p>
       </div>
     )
   }
 
   return (
-    <div className="relative flex min-h-svh flex-col" style={{ background: "#0a0a0a" }}>
-      {/* Ambient glow */}
+    <div className="flex min-h-svh flex-col" style={{ background: "#0a0a0a" }}>
+      {/* Ambient */}
       <div
         aria-hidden
-        className="pointer-events-none fixed top-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full opacity-20"
-        style={{ background: "radial-gradient(circle, #c9a84c 0%, transparent 70%)" }}
+        style={{
+          position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)",
+          width: 320, height: 320, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%)",
+          pointerEvents: "none", zIndex: 0,
+        }}
       />
 
-      {/* Tab content */}
-      <main className="flex-1 pb-nav overflow-y-auto">
+      {/* Content */}
+      <main style={{ flex: 1, paddingBottom: 72, overflowY: "auto", position: "relative", zIndex: 1 }}>
         <AnimatePresence mode="wait">
-          {active === "review" && (
-            <motion.div
-              key="review"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.25 }}
-            >
-              <ReviewTab business={business} />
-            </motion.div>
-          )}
-          {active === "social" && (
-            <motion.div
-              key="social"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.25 }}
-            >
-              <SocialTab business={business} />
-            </motion.div>
-          )}
-          {active === "menu" && (
-            <motion.div
-              key="menu"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.25 }}
-            >
-              <MenuTab business={business} />
-            </motion.div>
-          )}
+          <motion.div
+            key={tab}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+          >
+            {tab === "review" && <ReviewTab business={business} />}
+            {tab === "social" && <SocialTab business={business} />}
+            {tab === "menu"   && <MenuTab   business={business} />}
+          </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Nav */}
       <nav
-        className="fixed bottom-0 inset-x-0 z-50 border-t"
         style={{
-          background: "rgba(10,10,10,0.97)",
-          borderColor: "rgba(201,168,76,0.15)",
-          backdropFilter: "blur(12px)",
+          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
+          height: 64,
+          background: "rgba(8,8,8,0.97)",
+          borderTop: "1px solid rgba(201,168,76,0.15)",
+          backdropFilter: "blur(20px)",
+          display: "flex",
           paddingBottom: "env(safe-area-inset-bottom)",
         }}
       >
-        <div className="flex items-stretch h-16">
-          {tabs.map(tab => {
-            const isActive = active === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActive(tab.id)}
-                className="relative flex flex-1 flex-col items-center justify-center gap-0.5 transition-all"
-                style={{ color: isActive ? "#c9a84c" : "#888880" }}
-              >
-                {isActive && (
-                  <div
-                    className="absolute top-0 h-0.5 w-12 rounded-full"
-                    style={{ background: "#c9a84c" }}
-                  />
-                )}
-                <span
-                  className="transition-transform duration-200"
-                  style={{ transform: isActive ? "scale(1.1)" : "scale(1)" }}
-                >
-                  {tab.icon}
-                </span>
-                <span className="text-[10px] font-semibold tracking-wide">
-                  {tab.label}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+        {TABS.map(t => {
+          const active = tab === t.id
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 3,
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                color: active ? "#c9a84c" : "#666",
+                transition: "color 0.2s",
+                position: "relative",
+              }}
+            >
+              {/* Top line indicator */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  width: active ? 36 : 0,
+                  height: 2,
+                  borderRadius: 2,
+                  background: "#c9a84c",
+                  transition: "width 0.25s ease",
+                }}
+              />
+              <span style={{ transform: active ? "scale(1.1)" : "scale(1)", transition: "transform 0.2s" }}>
+                {t.icon}
+              </span>
+              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.05em" }}>{t.label}</span>
+            </button>
+          )
+        })}
       </nav>
     </div>
   )

@@ -1,143 +1,163 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { motion } from "motion/react"
-import { ExternalLink, Heart, Users, Share2 } from "lucide-react"
+import { ExternalLink, Users, Heart, Share2 } from "lucide-react"
 import { getInstagram, trackInstagramClick, type InstagramSettings, type Business } from "@/lib/supabase"
 
 export function SocialTab({ business }: { business: Business }) {
-  const [insta, setInsta] = useState<InstagramSettings | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [clicked, setClicked] = useState(false)
+  const [insta, setInsta]   = useState<InstagramSettings | null>(null)
+  const [loading, setLoad]  = useState(true)
+  const [clicked, setClick] = useState(false)
 
   useEffect(() => {
-    getInstagram().then(data => {
-      setInsta(data)
-      setLoading(false)
-    })
+    getInstagram()
+      .then(setInsta)
+      .catch(console.error)
+      .finally(() => setLoad(false))
   }, [])
 
-  const handleFollow = async () => {
-    setClicked(true)
+  const follow = async () => {
+    setClick(true)
     await trackInstagramClick()
-    if (insta?.instagram_url) {
-      window.open(insta.instagram_url, "_blank")
-    }
+    if (insta?.instagram_url) window.open(insta.instagram_url, "_blank")
   }
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: "#c9a84c" }} />
-      </div>
-    )
-  }
+  const initial = (insta?.username ?? business.name ?? "H")[0].toUpperCase()
 
   return (
-    <div className="min-h-screen px-5 pt-10 pb-4">
+    <div style={{ minHeight: "100vh", padding: "32px 20px 24px" }}>
       {/* Header */}
-      <div className="mb-8 text-center">
-        <div
-          className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-full border"
-          style={{ borderColor: "rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.08)" }}
-        >
-          <Share2 className="h-10 w-10" style={{ color: "#c9a84c" }} />
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{
+          width: 72, height: 72, borderRadius: "50%",
+          background: "rgba(201,168,76,0.08)",
+          border: "1.5px solid rgba(201,168,76,0.35)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          margin: "0 auto 14px",
+        }}>
+          <Share2 style={{ width: 32, height: 32, color: "#c9a84c" }} />
         </div>
-        <h1 className="font-serif text-2xl font-bold" style={{ color: "#f5f0e8" }}>Follow Us</h1>
-        <p className="mt-1 text-sm" style={{ color: "#888880" }}>Stay updated with our latest posts</p>
+        <h1 className="font-serif" style={{ color: "#f5f0e8", fontSize: 22, fontWeight: 700 }}>
+          Follow Us
+        </h1>
+        <p style={{ color: "#888880", fontSize: 13, marginTop: 4 }}>
+          Stay updated with our latest posts
+        </p>
       </div>
 
-      {/* Instagram Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-card rounded-2xl overflow-hidden"
-        style={{ borderColor: "rgba(201,168,76,0.2)" }}
-      >
-        {/* Profile section */}
-        <div className="flex items-center gap-4 p-5 border-b" style={{ borderColor: "rgba(201,168,76,0.1)" }}>
-          <div
-            className="grid h-14 w-14 shrink-0 place-items-center rounded-full"
-            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)" }}
+      {loading ? (
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 60 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: "50%",
+            border: "2px solid #c9a84c", borderTopColor: "transparent",
+            animation: "spin 0.8s linear infinite",
+          }} />
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Profile card */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-card"
+            style={{ borderRadius: 20, overflow: "hidden", borderColor: "rgba(201,168,76,0.2)" }}
           >
-            <span className="text-xl font-bold text-black">
-              {(insta?.username ?? business?.name ?? "H")[0].toUpperCase()}
-            </span>
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold" style={{ color: "#f5f0e8" }}>{insta?.username ?? "@houseofpaloma"}</p>
-            <p className="text-sm" style={{ color: "#888880" }}>{business?.name ?? "House of Paloma"}</p>
-          </div>
-          <div className="text-right">
-            <div className="flex items-center gap-1" style={{ color: "#c9a84c" }}>
-              <Users className="h-4 w-4" />
-              <span className="text-sm font-bold">{insta?.follower_count ?? "0"}</span>
+            {/* Profile header */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 14,
+              padding: "18px 18px 14px",
+              borderBottom: "1px solid rgba(201,168,76,0.1)",
+            }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: "50%", flexShrink: 0,
+                background: "linear-gradient(135deg, #c9a84c, #a07830)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 20, fontWeight: 700, color: "#0a0a0a",
+              }}>
+                {initial}
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ color: "#f5f0e8", fontWeight: 600, fontSize: 15 }}>
+                  {insta?.username ?? "@houseofpaloma"}
+                </p>
+                <p style={{ color: "#888880", fontSize: 12, marginTop: 2 }}>{business.name}</p>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#c9a84c" }}>
+                  <Users style={{ width: 14, height: 14 }} />
+                  <span style={{ fontWeight: 700, fontSize: 15 }}>{insta?.follower_count ?? "0"}</span>
+                </div>
+                <p style={{ color: "#888880", fontSize: 11, marginTop: 1 }}>followers</p>
+              </div>
             </div>
-            <p className="text-xs" style={{ color: "#888880" }}>followers</p>
-          </div>
-        </div>
 
-        {/* Preview images grid */}
-        {insta?.preview_images && insta.preview_images.length > 0 ? (
-          <div className="grid grid-cols-3 gap-0.5 p-0.5">
-            {insta.preview_images.slice(0, 3).map((img, i) => (
-              <div key={i} className="aspect-square overflow-hidden">
-                <img src={img} alt={`Post ${i+1}`} className="h-full w-full object-cover" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-0.5 p-0.5">
-            {[1,2,3].map(i => (
-              <div
-                key={i}
-                className="aspect-square flex items-center justify-center shimmer"
+            {/* Image grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2, padding: 2 }}>
+              {(insta?.preview_images?.length ? insta.preview_images.slice(0, 3) : [null, null, null]).map((img, i) => (
+                <div
+                  key={i}
+                  style={{
+                    aspectRatio: "1",
+                    background: "rgba(255,255,255,0.04)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    overflow: "hidden",
+                  }}
+                >
+                  {img
+                    ? <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    : <Heart style={{ width: 24, height: 24, color: "rgba(201,168,76,0.2)" }} />
+                  }
+                </div>
+              ))}
+            </div>
+
+            {/* Follow button */}
+            <div style={{ padding: 16 }}>
+              <button
+                className="btn-gold"
+                onClick={follow}
+                style={{ height: 52, gap: 10 }}
               >
-                <Heart className="h-6 w-6 opacity-30" style={{ color: "#c9a84c" }} />
-              </div>
-            ))}
-          </div>
-        )}
+                <Share2 style={{ width: 18, height: 18 }} />
+                Follow on Instagram
+                <ExternalLink style={{ width: 14, height: 14 }} />
+              </button>
+              {clicked && (
+                <p style={{ textAlign: "center", color: "#4caf7d", fontSize: 13, marginTop: 10 }}>
+                  ✅ Opening Instagram…
+                </p>
+              )}
+            </div>
+          </motion.div>
 
-        {/* Follow button */}
-        <div className="p-5">
-          <button
-            className="btn-gold gold-glow"
-            onClick={handleFollow}
-            style={{ fontSize: "1rem" }}
+          {/* Reasons card */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="glass-card"
+            style={{ borderRadius: 20, padding: 18, borderColor: "rgba(201,168,76,0.15)" }}
           >
-            <Share2 className="h-5 w-5" />
-            Follow on Instagram
-            <ExternalLink className="h-4 w-4" />
-          </button>
-          {clicked && (
-            <p className="mt-3 text-center text-sm" style={{ color: "#4caf7d" }}>
-              ✅ Opening Instagram…
+            <p style={{ color: "#888880", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>
+              Why follow us?
             </p>
-          )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                ["🎉", "Exclusive offers for followers"],
+                ["📸", "Behind-the-scenes content"],
+                ["🍽️", "New menu announcements first"],
+                ["🎶", "Event updates & live nights"],
+              ].map(([icon, text]) => (
+                <div key={text} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
+                  <span style={{ color: "#e0d8cc", fontSize: 14 }}>{text}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
-      </motion.div>
-
-      {/* Stats */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mt-4 glass-card rounded-2xl p-5"
-        style={{ borderColor: "rgba(201,168,76,0.2)" }}
-      >
-        <p className="text-sm font-medium mb-3" style={{ color: "#888880" }}>Why follow us?</p>
-        <ul className="space-y-2">
-          {[
-            "🎉 Exclusive offers for followers",
-            "📸 Behind-the-scenes content",
-            "🍽️ New menu announcements",
-            "🎶 Event updates & live nights",
-          ].map(item => (
-            <li key={item} className="text-sm" style={{ color: "#f5f0e8" }}>{item}</li>
-          ))}
-        </ul>
-      </motion.div>
+      )}
     </div>
   )
 }
