@@ -28,6 +28,11 @@ html, body {
   overscroll-behavior: none;
 }
 
+/* font-serif utility for Tailwind v4 */
+.font-serif {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -72,6 +77,13 @@ html, body {
   box-shadow: 0 0 0 2px rgba(201,168,76,0.2);
 }
 .input-base::placeholder { color: var(--muted-foreground); }
+
+/* select inside input-base */
+select.input-base {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
 
 /* Button gold */
 .btn-gold {
@@ -151,3 +163,24 @@ html, body {
   white-space: nowrap;
   backdrop-filter: blur(12px);
 }
+
+/* line-clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* min-h-svh fallback */
+.min-h-svh {
+  min-height: 100svh;
+  min-height: 100vh;
+}
+
+/* scrollbar-hide */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar { display: none; }

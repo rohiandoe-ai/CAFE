@@ -33,12 +33,20 @@ export function LandingPage() {
   const [loaded, setLoaded]     = useState(false)
 
   useEffect(() => {
+    // Max 2s wait — show content even if Supabase is slow
+    const timeout = setTimeout(() => setLoaded(true), 2000)
+
     getBusiness()
       .then(data => {
         if (data) setBusiness(data)
       })
       .catch(console.error)
-      .finally(() => setLoaded(true))
+      .finally(() => {
+        clearTimeout(timeout)
+        setLoaded(true)
+      })
+
+    return () => clearTimeout(timeout)
   }, [])
 
   // Show a minimal spinner only for the first 1.5s max

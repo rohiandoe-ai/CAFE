@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { MessageSquare, Star, UtensilsCrossed, LogOut, Menu, X } from "lucide-react"
 import { WhatsAppSection } from "./whatsapp/whatsapp-section"

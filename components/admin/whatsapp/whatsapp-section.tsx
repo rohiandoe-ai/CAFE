@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Users, FileText, Send, History } from "lucide-react"
 import { CustomerList } from "./customer-list"
 import { TemplateManager } from "./template-manager"
