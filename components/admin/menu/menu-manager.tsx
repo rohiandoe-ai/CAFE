@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Plus, Trash2, Edit2, Eye, EyeOff, Loader2, Save, X } from "lucide-react"
 import { getMenuItems, insertMenuItem, updateMenuItem, deleteMenuItem, type MenuItem } from "@/lib/supabase"
 
-const CATEGORIES = ["Coffee","Food","Desserts","Drinks","Other"]
+const CATS = ["Coffee","Food","Desserts","Drinks","Other"]
 
-const emptyForm = (): Omit<MenuItem, "id" | "cafe_id" | "created_at" | "updated_at"> => ({
+type FormData = Omit<MenuItem, "id" | "cafe_id" | "created_at" | "updated_at">
+const empty = (): FormData => ({
   name: "", description: "", price: 0, category: "Coffee",
   image_url: "", is_available: true, is_must_try: false,
   veg_nonveg: "veg", sort_order: 0,
@@ -16,257 +17,285 @@ export function MenuManager() {
   const [items, setItems]       = useState<MenuItem[]>([])
   const [loading, setLoading]   = useState(true)
   const [saving, setSaving]     = useState(false)
-  const [form, setForm]         = useState(emptyForm())
+  const [form, setForm]         = useState<FormData>(empty())
   const [editId, setEditId]     = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [catFilter, setCatFilter] = useState("All")
   const [preview, setPreview]   = useState(false)
 
-  const load = () => {
-    getMenuItems().then(data => { setItems(data); setLoading(false) })
-  }
-
+  const load = () => getMenuItems().then(d => { setItems(d); setLoading(false) })
   useEffect(() => { load() }, [])
 
-  type FormType = Omit<MenuItem, "id" | "cafe_id" | "created_at" | "updated_at">
-
-  const set = <K extends keyof FormType>(k: K, v: FormType[K]) =>
+  const set = <K extends keyof FormData>(k: K, v: FormData[K]) =>
     setForm(f => ({ ...f, [k]: v }))
 
-  const handleEdit = (item: MenuItem) => {
-    setForm({
-      name: item.name, description: item.description, price: item.price,
+  const openEdit = (item: MenuItem) => {
+    setForm({ name: item.name, description: item.description, price: item.price,
       category: item.category, image_url: item.image_url,
       is_available: item.is_available, is_must_try: item.is_must_try,
-      veg_nonveg: item.veg_nonveg, sort_order: item.sort_order,
-    })
-    setEditId(item.id)
-    setShowForm(true)
+      veg_nonveg: item.veg_nonveg, sort_order: item.sort_order })
+    setEditId(item.id); setShowForm(true); setPreview(false)
   }
 
-  const handleSave = async () => {
+  const openAdd = () => { setForm(empty()); setEditId(null); setShowForm(true); setPreview(false) }
+
+  const save = async () => {
     if (!form.name.trim()) return
     setSaving(true)
-    if (editId) {
-      await updateMenuItem(editId, form)
-    } else {
-      await insertMenuItem(form)
-    }
-    await load()
-    setSaving(false)
-    setShowForm(false)
-    setForm(emptyForm())
-    setEditId(null)
+    if (editId) await updateMenuItem(editId, form)
+    else await insertMenuItem(form)
+    await load(); setSaving(false); setShowForm(false); setForm(empty()); setEditId(null)
   }
 
-  const handleDelete = async (id: string) => {
+  const del = async (id: string) => {
     if (!confirm("Delete this item?")) return
-    await deleteMenuItem(id)
-    load()
+    await deleteMenuItem(id); load()
   }
 
-  const toggleAvailability = async (item: MenuItem) => {
-    await updateMenuItem(item.id, { is_available: !item.is_available })
-    load()
+  const toggle = async (item: MenuItem) => {
+    await updateMenuItem(item.id, { is_available: !item.is_available }); load()
   }
 
-  const categories = ["All", ...CATEGORIES]
+  const cats    = ["All", ...CATS]
   const filtered = items.filter(i => catFilter === "All" || i.category === catFilter)
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div>
-          <h1 className="font-serif text-2xl font-bold" style={{ color: "#f5f0e8" }}>Menu Manager</h1>
-          <p className="mt-0.5 text-sm" style={{ color: "#888880" }}>{items.length} items</p>
+          <h1 className="font-serif" style={{ color: "#f5f0e8", fontSize: 24, fontWeight: 700 }}>Menu Manager</h1>
+          <p style={{ color: "#888880", fontSize: 13, marginTop: 4 }}>{items.length} items</p>
         </div>
-        <button
-          onClick={() => { setForm(emptyForm()); setEditId(null); setShowForm(true) }}
-          className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold"
-          style={{ background: "rgba(201,168,76,0.15)", color: "#c9a84c", border: "1px solid rgba(201,168,76,0.3)" }}
-        >
-          <Plus className="h-4 w-4" /> Add Item
+        <button onClick={openAdd} style={{
+          display: "flex", alignItems: "center", gap: 8,
+          padding: "10px 18px", borderRadius: 10, cursor: "pointer",
+          background: "rgba(201,168,76,0.12)", color: "#c9a84c",
+          border: "1px solid rgba(201,168,76,0.3)", fontSize: 13, fontWeight: 700,
+          transition: "all 0.15s",
+        } as React.CSSProperties}>
+          <Plus style={{ width: 16, height: 16 }} /> Add Item
         </button>
       </div>
 
       {/* Category filter */}
-      <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-        {categories.map(c => (
-          <button
-            key={c}
-            onClick={() => setCatFilter(c)}
-            className="shrink-0 rounded-xl px-3 py-1.5 text-sm transition-all"
-            style={{
-              background: catFilter === c ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
-              color: catFilter === c ? "#c9a84c" : "#888880",
-              border: `1px solid ${catFilter === c ? "rgba(201,168,76,0.3)" : "rgba(201,168,76,0.1)"}`,
-            }}
-          >
-            {c}
-          </button>
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2, scrollbarWidth: "none" }}>
+        {cats.map(c => (
+          <button key={c} onClick={() => setCatFilter(c)} style={{
+            flexShrink: 0, padding: "7px 14px", borderRadius: 99, cursor: "pointer",
+            background: catFilter === c ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
+            color: catFilter === c ? "#c9a84c" : "#888",
+            border: `1px solid ${catFilter === c ? "rgba(201,168,76,0.3)" : "rgba(255,255,255,0.07)"}`,
+            fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", transition: "all 0.15s",
+          } as React.CSSProperties}>{c}</button>
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Left: Item List */}
-        <div className="space-y-3">
+      <div style={{ display: "grid", gap: 16 }} className="menu-grid">
+        {/* Item list */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-6 w-6 animate-spin" style={{ color: "#c9a84c" }} />
+            <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
+              <Loader2 style={{ width: 28, height: 28, color: "#c9a84c", animation: "spin 0.8s linear infinite" }} />
             </div>
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center py-12 gap-2">
-              <span className="text-3xl">🍽️</span>
-              <p style={{ color: "#888880" }}>No items</p>
+            <div style={{ textAlign: "center", padding: "40px 0" }}>
+              <div style={{ fontSize: 36, marginBottom: 10 }}>🍽️</div>
+              <p style={{ color: "#888" }}>No items</p>
             </div>
           ) : (
             filtered.map(item => (
-              <div
-                key={item.id}
-                className="glass-card rounded-xl p-4 transition-all"
-                style={{
-                  borderColor: "rgba(201,168,76,0.15)",
-                  opacity: item.is_available ? 1 : 0.6,
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  {item.image_url && (
-                    <img src={item.image_url} alt={item.name} className="h-12 w-12 rounded-lg object-cover shrink-0" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="h-2.5 w-2.5 rounded-sm shrink-0"
-                        style={{ background: item.veg_nonveg === "veg" ? "#4caf7d" : "#e05555" }}
-                      />
-                      <p className="font-semibold text-sm truncate" style={{ color: "#f5f0e8" }}>{item.name}</p>
-                      {item.is_must_try && (
-                        <span className="badge-must-try shrink-0">★</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-sm font-bold" style={{ color: "#c9a84c" }}>₹{Number(item.price).toFixed(0)}</span>
-                      <span className="text-xs" style={{ color: "#888880" }}>{item.category}</span>
-                    </div>
+              <div key={item.id} style={{
+                background: "rgba(255,255,255,0.025)",
+                border: "1px solid rgba(201,168,76,0.1)",
+                borderRadius: 14, padding: "12px 14px",
+                display: "flex", alignItems: "center", gap: 12,
+                opacity: item.is_available ? 1 : 0.55,
+                transition: "opacity 0.2s",
+              }}>
+                {/* Image */}
+                {item.image_url ? (
+                  <img src={item.image_url} alt={item.name} style={{ width: 48, height: 48, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+                ) : (
+                  <div style={{ width: 48, height: 48, borderRadius: 10, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>
+                    🍴
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      onClick={() => toggleAvailability(item)}
-                      className="p-1.5 rounded-lg"
-                      style={{ color: item.is_available ? "#4caf7d" : "#e05555" }}
-                      title={item.is_available ? "Mark unavailable" : "Mark available"}
-                    >
-                      {item.is_available ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                    </button>
-                    <button onClick={() => handleEdit(item)} className="p-1.5 rounded-lg" style={{ color: "#888880" }}>
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded-lg" style={{ color: "#e05555" }}>
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                )}
+
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <div style={{
+                      width: 10, height: 10, borderRadius: 2, flexShrink: 0,
+                      border: `1.5px solid ${item.veg_nonveg === "veg" ? "#4caf7d" : "#e05555"}`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <div style={{ width: 5, height: 5, borderRadius: "50%", background: item.veg_nonveg === "veg" ? "#4caf7d" : "#e05555" }} />
+                    </div>
+                    <span style={{ color: "#f5f0e8", fontWeight: 600, fontSize: 14 }}>{item.name}</span>
+                    {item.is_must_try && <span className="badge-must-try">★</span>}
+                    {!item.is_available && <span style={{ color: "#e05555", fontSize: 10, fontWeight: 700 }}>Unavailable</span>}
                   </div>
+                  <div style={{ display: "flex", gap: 10, marginTop: 3, alignItems: "center" }}>
+                    <span style={{ color: "#c9a84c", fontWeight: 800, fontSize: 15 }}>₹{Number(item.price).toFixed(0)}</span>
+                    <span style={{ color: "#555", fontSize: 11 }}>{item.category}</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                  <ActionBtn onClick={() => toggle(item)} color={item.is_available ? "#4caf7d" : "#e05555"} title={item.is_available ? "Hide" : "Show"}>
+                    {item.is_available ? <Eye style={{ width: 14, height: 14 }} /> : <EyeOff style={{ width: 14, height: 14 }} />}
+                  </ActionBtn>
+                  <ActionBtn onClick={() => openEdit(item)} color="#888" title="Edit">
+                    <Edit2 style={{ width: 14, height: 14 }} />
+                  </ActionBtn>
+                  <ActionBtn onClick={() => del(item.id)} color="#e05555" title="Delete">
+                    <Trash2 style={{ width: 14, height: 14 }} />
+                  </ActionBtn>
                 </div>
               </div>
             ))
           )}
         </div>
 
-        {/* Right: Form + Preview */}
+        {/* Add/Edit form */}
         {showForm && (
-          <div className="glass-card rounded-2xl p-5 space-y-4 h-fit" style={{ borderColor: "rgba(201,168,76,0.2)" }}>
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold" style={{ color: "#f5f0e8" }}>
+          <div style={{
+            background: "rgba(255,255,255,0.025)",
+            border: "1px solid rgba(201,168,76,0.18)",
+            borderRadius: 18, padding: 20,
+            display: "flex", flexDirection: "column", gap: 14,
+            height: "fit-content",
+          }}>
+            {/* Form header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <p style={{ color: "#f5f0e8", fontWeight: 700, fontSize: 16 }}>
                 {editId ? "Edit Item" : "Add Item"}
-              </h3>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setPreview(p => !p)}
-                  className="text-xs px-2 py-1 rounded-lg"
-                  style={{ background: "rgba(201,168,76,0.1)", color: "#c9a84c" }}
-                >
+              </p>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => setPreview(p => !p)} style={{
+                  padding: "5px 10px", borderRadius: 8, border: "none", cursor: "pointer",
+                  background: "rgba(201,168,76,0.1)", color: "#c9a84c", fontSize: 12, fontWeight: 600,
+                }}>
                   {preview ? "Edit" : "Preview"}
                 </button>
-                <button onClick={() => setShowForm(false)} style={{ color: "#888880" }}>
-                  <X className="h-4 w-4" />
+                <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#888", padding: 4 }}>
+                  <X style={{ width: 18, height: 18 }} />
                 </button>
               </div>
             </div>
 
             {preview ? (
-              /* Live Preview */
-              <div className="glass-card rounded-2xl overflow-hidden" style={{ borderColor: "rgba(201,168,76,0.15)" }}>
+              /* Preview */
+              <div style={{
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(201,168,76,0.1)",
+                borderRadius: 14, overflow: "hidden",
+              }}>
                 {form.image_url && (
-                  <div className="h-40 overflow-hidden">
-                    <img src={form.image_url} alt={form.name} className="h-full w-full object-cover" />
-                  </div>
+                  <img src={form.image_url} alt={form.name} style={{ width: "100%", height: 140, objectFit: "cover" }} />
                 )}
-                <div className="p-4">
-                  <div className="flex items-start justify-between">
+                <div style={{ padding: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="h-2.5 w-2.5 rounded-sm"
-                          style={{ background: form.veg_nonveg === "veg" ? "#4caf7d" : "#e05555" }}
-                        />
-                        <p className="font-semibold" style={{ color: "#f5f0e8" }}>{form.name || "Item Name"}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                        <div style={{ width: 10, height: 10, borderRadius: 2, border: `1.5px solid ${form.veg_nonveg === "veg" ? "#4caf7d" : "#e05555"}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <div style={{ width: 5, height: 5, borderRadius: "50%", background: form.veg_nonveg === "veg" ? "#4caf7d" : "#e05555" }} />
+                        </div>
+                        <span style={{ color: "#f5f0e8", fontWeight: 700 }}>{form.name || "Item Name"}</span>
                         {form.is_must_try && <span className="badge-must-try">Must Try</span>}
                       </div>
-                      <p className="mt-1 text-sm" style={{ color: "#888880" }}>{form.description || "Description"}</p>
+                      <p style={{ color: "#888", fontSize: 13 }}>{form.description || "Description"}</p>
                     </div>
-                    <p className="font-bold text-lg" style={{ color: "#c9a84c" }}>₹{Number(form.price).toFixed(0)}</p>
+                    <span style={{ color: "#c9a84c", fontWeight: 800, fontSize: 18 }}>₹{Number(form.price).toFixed(0)}</span>
                   </div>
                 </div>
               </div>
             ) : (
-              /* Edit Form */
-              <div className="space-y-3">
+              /* Form fields */
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <input className="input-base" placeholder="Item name *" value={form.name} onChange={e => set("name", e.target.value)} />
-                <textarea className="input-base resize-none" rows={2} placeholder="Description" value={form.description} onChange={e => set("description", e.target.value)} />
-                <div className="grid grid-cols-2 gap-3">
+                <textarea className="input-base" rows={2} placeholder="Description (optional)" value={form.description} onChange={e => set("description", e.target.value)} style={{ resize: "none" }} />
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div>
-                    <label className="mb-1 block text-xs" style={{ color: "#888880" }}>Price (₹)</label>
-                    <input className="input-base" type="number" min={0} value={form.price} onChange={e => set("price", parseFloat(e.target.value) || 0)} />
+                    <label style={{ display: "block", fontSize: 11, color: "#888", marginBottom: 5, fontWeight: 600 }}>Price (₹)</label>
+                    <input className="input-base" type="number" min={0} value={form.price}
+                      onChange={e => set("price", parseFloat(e.target.value) || 0)} />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs" style={{ color: "#888880" }}>Category</label>
+                    <label style={{ display: "block", fontSize: 11, color: "#888", marginBottom: 5, fontWeight: 600 }}>Category</label>
                     <select className="input-base" value={form.category} onChange={e => set("category", e.target.value)}>
-                      {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                      {CATS.map(c => <option key={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
-                <input className="input-base" placeholder="Image URL (optional)" value={form.image_url} onChange={e => set("image_url", e.target.value)} />
-                <div className="grid grid-cols-2 gap-3">
+
+                <input className="input-base" placeholder="Image URL (optional)" value={form.image_url}
+                  onChange={e => set("image_url", e.target.value)} />
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div>
-                    <label className="mb-1 block text-xs" style={{ color: "#888880" }}>Type</label>
-                    <select className="input-base" value={form.veg_nonveg} onChange={e => set("veg_nonveg", e.target.value as "veg" | "nonveg")}>
+                    <label style={{ display: "block", fontSize: 11, color: "#888", marginBottom: 5, fontWeight: 600 }}>Type</label>
+                    <select className="input-base" value={form.veg_nonveg}
+                      onChange={e => set("veg_nonveg", e.target.value as "veg" | "nonveg")}>
                       <option value="veg">🟢 Veg</option>
                       <option value="nonveg">🔴 Non-veg</option>
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs" style={{ color: "#888880" }}>Sort Order</label>
-                    <input className="input-base" type="number" min={0} value={form.sort_order} onChange={e => set("sort_order", parseInt(e.target.value) || 0)} />
+                    <label style={{ display: "block", fontSize: 11, color: "#888", marginBottom: 5, fontWeight: 600 }}>Sort Order</label>
+                    <input className="input-base" type="number" min={0} value={form.sort_order}
+                      onChange={e => set("sort_order", parseInt(e.target.value) || 0)} />
                   </div>
                 </div>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={form.is_must_try} onChange={e => set("is_must_try", e.target.checked)} className="accent-yellow-500" />
-                    <span className="text-sm" style={{ color: "#f5f0e8" }}>Must Try</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={form.is_available} onChange={e => set("is_available", e.target.checked)} className="accent-green-500" />
-                    <span className="text-sm" style={{ color: "#f5f0e8" }}>Available</span>
-                  </label>
+
+                <div style={{ display: "flex", gap: 20 }}>
+                  {[
+                    { key: "is_must_try" as const, label: "⭐ Must Try" },
+                    { key: "is_available" as const, label: "✅ Available" },
+                  ].map(({ key, label }) => (
+                    <label key={key} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                      <input type="checkbox" checked={form[key] as boolean} onChange={e => set(key, e.target.checked)}
+                        style={{ width: 16, height: 16, accentColor: "#c9a84c", cursor: "pointer" }} />
+                      <span style={{ color: "#f5f0e8", fontSize: 13, fontWeight: 500 }}>{label}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
             )}
 
-            <button className="btn-gold" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="h-4 w-4" /> {editId ? "Update" : "Save Item"}</>}
+            <button className="btn-gold" onClick={save} disabled={saving} style={{ height: 48, borderRadius: 12 }}>
+              {saving
+                ? <Loader2 style={{ width: 18, height: 18, animation: "spin 0.8s linear infinite" }} />
+                : <><Save style={{ width: 16, height: 16 }} /> {editId ? "Update Item" : "Save Item"}</>
+              }
             </button>
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (min-width: 768px) {
+          .menu-grid { grid-template-columns: 1fr 380px !important; align-items: start; }
+        }
+      `}</style>
     </div>
+  )
+}
+
+function ActionBtn({ onClick, color, title, children }: { onClick: () => void; color: string; title?: string; children: React.ReactNode }) {
+  return (
+    <button onClick={onClick} title={title} style={{
+      width: 32, height: 32, borderRadius: 8, border: "none", cursor: "pointer",
+      background: "rgba(255,255,255,0.04)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      color, transition: "background 0.15s",
+    }}
+      onMouseEnter={e => (e.currentTarget.style.background = `${color}22`)}
+      onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+    >{children}</button>
   )
 }

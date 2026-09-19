@@ -8,71 +8,97 @@ import { adminLogin } from "@/lib/supabase"
 
 export function AdminLogin() {
   const router = useRouter()
-  const [email, setEmail]       = useState("")
-  const [password, setPassword] = useState("")
-  const [showPass, setShowPass] = useState(false)
-  const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState(false)
+  const [email, setEmail]     = useState("")
+  const [password, setPass]   = useState("")
+  const [show, setShow]       = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password) return
-    setLoading(true)
-    setError(false)
-
+    setLoading(true); setError(false)
     const ok = await adminLogin(email.trim(), password)
     if (ok) {
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("admin_auth", "true")
-      }
+      sessionStorage.setItem("admin_auth", "true")
       router.replace("/admin/dashboard")
     } else {
-      setError(true)
-      setLoading(false)
+      setError(true); setLoading(false)
     }
   }
 
   return (
-    <main className="grid min-h-svh place-items-center px-5">
-      {/* Ambient glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed top-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full opacity-20"
-        style={{ background: "radial-gradient(circle, #c9a84c 0%, transparent 70%)" }}
-      />
+    <div style={{
+      minHeight: "100svh", display: "flex", alignItems: "center", justifyContent: "center",
+      background: "#0a0a0a", padding: "20px", position: "relative", overflow: "hidden",
+    }}>
+      {/* Background blobs */}
+      <div style={{
+        position: "fixed", top: "-10%", left: "50%", transform: "translateX(-50%)",
+        width: 500, height: 500, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 65%)",
+        pointerEvents: "none",
+      }} />
+      <div style={{
+        position: "fixed", bottom: "-20%", right: "-10%",
+        width: 400, height: 400, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 65%)",
+        pointerEvents: "none",
+      }} />
 
       <motion.form
-        onSubmit={handleSubmit}
-        initial={{ opacity: 0, y: 20 }}
+        onSubmit={submit}
+        initial={{ opacity: 0, y: 24 }}
         animate={error
           ? { x: [-10, 10, -8, 8, 0], opacity: 1, y: 0 }
           : { opacity: 1, y: 0 }
         }
         transition={{ duration: error ? 0.4 : 0.5 }}
-        className="glass-card gold-glow relative z-10 w-full max-w-sm rounded-2xl p-8"
-        style={{ borderColor: "rgba(201,168,76,0.2)" }}
+        style={{
+          width: "100%", maxWidth: 420, position: "relative", zIndex: 1,
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(201,168,76,0.18)",
+          borderRadius: 24,
+          padding: "40px 36px",
+          boxShadow: "0 0 60px rgba(201,168,76,0.08), 0 24px 48px rgba(0,0,0,0.5)",
+          backdropFilter: "blur(16px)",
+        }}
       >
-        {/* Icon */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <div
-            className="grid h-16 w-16 place-items-center rounded-full mb-4"
-            style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)" }}
-          >
-            <Lock className="h-7 w-7" style={{ color: "#c9a84c" }} />
+        {/* Icon + Title */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: "50%", margin: "0 auto 18px",
+            background: "rgba(201,168,76,0.1)",
+            border: "1.5px solid rgba(201,168,76,0.35)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 0 24px rgba(201,168,76,0.15)",
+          }}>
+            <Lock style={{ width: 28, height: 28, color: "#c9a84c" }} />
           </div>
-          <h1 className="font-serif text-2xl font-bold" style={{ color: "#f5f0e8" }}>Admin Login</h1>
-          <p className="mt-1 text-sm" style={{ color: "#888880" }}>Cafe Management Dashboard</p>
+          <h1 className="font-serif" style={{
+            color: "#f5f0e8", fontSize: 26, fontWeight: 700, marginBottom: 6,
+          }}>Admin Login</h1>
+          <p style={{ color: "#888880", fontSize: 14 }}>Cafe Management Dashboard</p>
         </div>
 
-        <div className="space-y-4">
+        {/* Fields */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {/* Email */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium" style={{ color: "#888880" }}>Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: "#888880" }} />
+            <label style={{
+              display: "block", fontSize: 11, fontWeight: 600,
+              color: "#888880", marginBottom: 6,
+              textTransform: "uppercase", letterSpacing: "0.07em",
+            }}>Email</label>
+            <div style={{ position: "relative" }}>
+              <Mail style={{
+                position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+                width: 16, height: 16, color: "#888880",
+              }} />
               <input
                 type="email"
-                className="input-base pl-10"
+                className="input-base"
+                style={{ paddingLeft: 42 }}
                 placeholder="admin@cafe.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -83,51 +109,77 @@ export function AdminLogin() {
 
           {/* Password */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium" style={{ color: "#888880" }}>Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: "#888880" }} />
+            <label style={{
+              display: "block", fontSize: 11, fontWeight: 600,
+              color: "#888880", marginBottom: 6,
+              textTransform: "uppercase", letterSpacing: "0.07em",
+            }}>Password</label>
+            <div style={{ position: "relative" }}>
+              <Lock style={{
+                position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+                width: 16, height: 16, color: "#888880",
+              }} />
               <input
-                type={showPass ? "text" : "password"}
-                className="input-base pl-10 pr-10"
+                type={show ? "text" : "password"}
+                className="input-base"
+                style={{ paddingLeft: 42, paddingRight: 44 }}
                 placeholder="••••••••"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={e => setPass(e.target.value)}
                 autoComplete="current-password"
               />
               <button
                 type="button"
-                onClick={() => setShowPass(p => !p)}
-                className="absolute right-3 top-1/2 -translate-y-1/2"
-                style={{ color: "#888880" }}
+                onClick={() => setShow(s => !s)}
+                style={{
+                  position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer",
+                  color: "#888880", padding: 4, display: "flex", alignItems: "center",
+                }}
               >
-                {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {show ? <EyeOff style={{ width: 16, height: 16 }} /> : <Eye style={{ width: 16, height: 16 }} />}
               </button>
             </div>
           </div>
         </div>
 
+        {/* Error */}
         {error && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-4 text-center text-sm"
-            style={{ color: "#e05555" }}
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              marginTop: 14,
+              background: "rgba(224,85,85,0.1)",
+              border: "1px solid rgba(224,85,85,0.25)",
+              borderRadius: 10, padding: "10px 14px",
+              color: "#e05555", fontSize: 13, textAlign: "center",
+            }}
           >
-            Incorrect email or password
-          </motion.p>
+            ❌ Incorrect email or password
+          </motion.div>
         )}
 
+        {/* Submit */}
         <button
           type="submit"
-          className="btn-gold mt-6"
+          className="btn-gold"
           disabled={loading || !email || !password}
+          style={{ marginTop: 24, height: 52, fontSize: 15, borderRadius: 14, boxShadow: "0 0 20px rgba(201,168,76,0.2)" }}
         >
           {loading
-            ? <Loader2 className="h-5 w-5 animate-spin" />
+            ? <Loader2 style={{ width: 20, height: 20, animation: "spin 0.8s linear infinite" }} />
             : "Sign In"
           }
         </button>
+
+        {/* Footer hint */}
+        <p style={{ textAlign: "center", color: "#555", fontSize: 12, marginTop: 20 }}>
+          House of Paloma · Admin Portal
+        </p>
       </motion.form>
-    </main>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
   )
 }

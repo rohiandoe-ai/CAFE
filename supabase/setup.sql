@@ -27,7 +27,7 @@ CREATE TABLE public.businesses (
     location TEXT NOT NULL DEFAULT 'Bandra West, Mumbai',
     google_review_url TEXT NOT NULL DEFAULT 'https://search.google.com/local/writereview?placeid=ChIJ4TflFcvJ5zsRWP5VIdUk9Qg',
     logo_url TEXT,
-    admin_email TEXT NOT NULL DEFAULT 'admin@cafe.com',
+    admin_email TEXT NOT NULL DEFAULT 'admin@houseofpaloma.com',
     admin_password TEXT NOT NULL DEFAULT 'admin123',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );

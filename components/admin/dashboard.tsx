@@ -2,17 +2,19 @@
 
 import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { MessageSquare, Star, UtensilsCrossed, LogOut, Menu, X, ChevronRight } from "lucide-react"
+import { MessageSquare, Star, UtensilsCrossed, QrCode, LogOut, Menu, X, ChevronRight } from "lucide-react"
 import { WhatsAppSection } from "./whatsapp/whatsapp-section"
 import { ReviewsSection } from "./reviews/reviews-section"
 import { MenuManager } from "./menu/menu-manager"
+import { QRSection } from "./qr/qr-section"
 
-type Section = "whatsapp" | "reviews" | "menu"
+type Section = "whatsapp" | "reviews" | "menu" | "qr"
 
 const NAV: { id: Section; label: string; desc: string; icon: React.ReactNode; emoji: string }[] = [
-  { id: "whatsapp", label: "WhatsApp",     desc: "Automation & Campaigns", emoji: "💬", icon: <MessageSquare style={{ width: 18, height: 18 }} /> },
-  { id: "reviews",  label: "Reviews",      desc: "Customer Feedback",      emoji: "⭐", icon: <Star          style={{ width: 18, height: 18 }} /> },
-  { id: "menu",     label: "Menu Manager", desc: "Items & Availability",   emoji: "🍽️", icon: <UtensilsCrossed style={{ width: 18, height: 18 }} /> },
+  { id: "whatsapp", label: "WhatsApp",  desc: "Automation & Campaigns", emoji: "💬", icon: <MessageSquare   style={{ width: 18, height: 18 }} /> },
+  { id: "reviews",  label: "Reviews",   desc: "Customer Feedback",      emoji: "⭐", icon: <Star            style={{ width: 18, height: 18 }} /> },
+  { id: "menu",     label: "Menu",      desc: "Items & Availability",   emoji: "🍽️", icon: <UtensilsCrossed style={{ width: 18, height: 18 }} /> },
+  { id: "qr",       label: "QR Code",   desc: "Generate & Download",    emoji: "📱", icon: <QrCode          style={{ width: 18, height: 18 }} /> },
 ]
 
 export function AdminDashboard() {
@@ -31,158 +33,114 @@ export function AdminDashboard() {
     router.replace("/admin/login")
   }
 
+  const go = (s: Section) => { setSection(s); setSidebar(false) }
   const active = NAV.find(n => n.id === section)!
-
-  const changeSection = (s: Section) => {
-    setSection(s)
-    setSidebar(false)
-  }
 
   return (
     <div style={{ display: "flex", minHeight: "100svh", background: "#0a0a0a" }}>
 
-      {/* ─── Desktop Sidebar ─────────────────────────────────────────── */}
-      <aside style={{
-        display: "none",
-        position: "fixed", inset: "0 auto 0 0",
-        width: 240,
+      {/* ── Desktop Sidebar ── */}
+      <aside className="admin-sidebar" style={{
+        position: "fixed", top: 0, left: 0, bottom: 0, width: 250,
         flexDirection: "column",
-        borderRight: "1px solid rgba(201,168,76,0.12)",
-        background: "rgba(12,12,12,0.99)",
-        zIndex: 40,
-      }} className="md-sidebar">
-        <SidebarInner section={section} onChange={changeSection} logout={logout} />
+        borderRight: "1px solid rgba(201,168,76,0.1)",
+        background: "rgba(10,10,10,0.99)",
+        zIndex: 40, display: "none",
+      }}>
+        <SidebarInner section={section} onChange={go} logout={logout} />
       </aside>
 
-      {/* ─── Mobile Sidebar Overlay ──────────────────────────────────── */}
+      {/* ── Mobile Drawer ── */}
       {sidebarOpen && (
         <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex" }}>
-          {/* Backdrop */}
-          <div
-            onClick={() => setSidebar(false)}
-            style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.75)" }}
-          />
-          {/* Drawer */}
+          <div onClick={() => setSidebar(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.8)" }} />
           <aside style={{
-            position: "relative", width: 260, height: "100%",
-            background: "#0f0f0f",
-            borderRight: "1px solid rgba(201,168,76,0.15)",
+            position: "relative", width: 270, height: "100%",
+            background: "#0d0d0d", borderRight: "1px solid rgba(201,168,76,0.15)",
             display: "flex", flexDirection: "column",
-            animation: "slideInLeft 0.22s ease",
+            animation: "slideIn 0.22s cubic-bezier(.4,0,.2,1)",
           }}>
             <button
               onClick={() => setSidebar(false)}
               style={{
-                position: "absolute", top: 14, right: 14,
-                background: "rgba(255,255,255,0.06)", border: "none",
+                position: "absolute", top: 12, right: 12,
+                background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 8, width: 30, height: 30,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", color: "#888880",
+                cursor: "pointer", color: "#888",
               }}
-            >
-              <X style={{ width: 16, height: 16 }} />
-            </button>
-            <SidebarInner section={section} onChange={changeSection} logout={logout} />
+            ><X style={{ width: 15, height: 15 }} /></button>
+            <SidebarInner section={section} onChange={go} logout={logout} />
           </aside>
         </div>
       )}
 
-      {/* ─── Main Content ────────────────────────────────────────────── */}
-      <div style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100svh",
-        // On desktop: offset by sidebar width
-      }} className="main-offset">
+      {/* ── Main ── */}
+      <div className="admin-main" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100svh" }}>
 
         {/* Mobile Top Bar */}
-        <header style={{
-          position: "sticky", top: 0, zIndex: 30,
-          height: 54,
-          display: "flex", alignItems: "center", gap: 12,
-          padding: "0 16px",
-          borderBottom: "1px solid rgba(201,168,76,0.12)",
-          background: "rgba(10,10,10,0.98)",
-          backdropFilter: "blur(12px)",
-        }} className="mobile-header">
-          <button
-            onClick={() => setSidebar(true)}
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(201,168,76,0.15)",
-              borderRadius: 8, width: 34, height: 34,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", color: "#c9a84c", flexShrink: 0,
-            }}
-          >
-            <Menu style={{ width: 16, height: 16 }} />
+        <header className="admin-topbar" style={{
+          position: "sticky", top: 0, zIndex: 30, height: 56,
+          display: "flex", alignItems: "center", gap: 12, padding: "0 16px",
+          background: "rgba(10,10,10,0.98)", borderBottom: "1px solid rgba(201,168,76,0.1)",
+          backdropFilter: "blur(16px)",
+        }}>
+          <button onClick={() => setSidebar(true)} style={{
+            background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.18)",
+            borderRadius: 9, width: 36, height: 36,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", color: "#c9a84c", flexShrink: 0,
+          }}>
+            <Menu style={{ width: 17, height: 17 }} />
           </button>
-
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ color: "#f5f0e8", fontWeight: 600, fontSize: 15, lineHeight: 1.2 }}>
-              {active.emoji} {active.label}
-            </p>
-            <p style={{ color: "#888880", fontSize: 11, marginTop: 1 }}>{active.desc}</p>
+          <div style={{ flex: 1 }}>
+            <p style={{ color: "#f5f0e8", fontWeight: 700, fontSize: 15, lineHeight: 1 }}>{active.emoji} {active.label}</p>
+            <p style={{ color: "#888880", fontSize: 11, marginTop: 2 }}>{active.desc}</p>
           </div>
-
-          <button
-            onClick={logout}
-            style={{
-              background: "rgba(224,85,85,0.1)",
-              border: "1px solid rgba(224,85,85,0.2)",
-              borderRadius: 8, width: 34, height: 34,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", color: "#e05555", flexShrink: 0,
-            }}
-          >
+          <button onClick={logout} style={{
+            background: "rgba(224,85,85,0.08)", border: "1px solid rgba(224,85,85,0.18)",
+            borderRadius: 9, width: 36, height: 36,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", color: "#e05555", flexShrink: 0,
+          }}>
             <LogOut style={{ width: 15, height: 15 }} />
           </button>
         </header>
 
-        {/* Section content */}
-        <main style={{ flex: 1, padding: "20px 16px", paddingBottom: 80 }}>
+        {/* Content */}
+        <main style={{ flex: 1, padding: "20px 16px", paddingBottom: 76, overflowX: "hidden" }}>
           {section === "whatsapp" && <WhatsAppSection />}
           {section === "reviews"  && <ReviewsSection />}
           {section === "menu"     && <MenuManager />}
+          {section === "qr"       && <QRSection />}
         </main>
 
         {/* Mobile Bottom Nav */}
-        <nav style={{
+        <nav className="admin-bottom-nav" style={{
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 30,
-          height: 60,
-          background: "rgba(8,8,8,0.98)",
-          borderTop: "1px solid rgba(201,168,76,0.12)",
-          display: "flex",
-          paddingBottom: "env(safe-area-inset-bottom)",
-        }} className="mobile-bottom-nav">
+          height: 62, background: "rgba(8,8,8,0.98)",
+          borderTop: "1px solid rgba(201,168,76,0.1)",
+          display: "flex", paddingBottom: "env(safe-area-inset-bottom)",
+        }}>
           {NAV.map(item => {
-            const active = section === item.id
+            const isActive = section === item.id
             return (
-              <button
-                key={item.id}
-                onClick={() => changeSection(item.id)}
-                style={{
-                  flex: 1, background: "none", border: "none", cursor: "pointer",
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center", gap: 3,
-                  color: active ? "#c9a84c" : "#555",
-                  transition: "color 0.2s",
-                  position: "relative",
-                }}
-              >
-                {active && (
-                  <div style={{
-                    position: "absolute", top: 0,
-                    width: 32, height: 2, borderRadius: 2,
-                    background: "#c9a84c",
-                  }} />
-                )}
-                <span style={{ transform: active ? "scale(1.1)" : "scale(1)", transition: "transform 0.2s" }}>
+              <button key={item.id} onClick={() => go(item.id)} style={{
+                flex: 1, background: "none", border: "none", cursor: "pointer",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center", gap: 3,
+                color: isActive ? "#c9a84c" : "#555",
+                transition: "color 0.2s", position: "relative",
+              }}>
+                {isActive && <div style={{
+                  position: "absolute", top: 0, width: 28, height: 2,
+                  borderRadius: 2, background: "#c9a84c",
+                }} />}
+                <span style={{ transform: isActive ? "scale(1.15)" : "scale(1)", transition: "transform 0.2s" }}>
                   {item.icon}
                 </span>
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.04em" }}>
-                  {item.label === "Menu Manager" ? "Menu" : item.label}
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em" }}>
+                  {item.label === "Menu" ? "Menu" : item.label}
                 </span>
               </button>
             )
@@ -190,128 +148,96 @@ export function AdminDashboard() {
         </nav>
       </div>
 
-      {/* Responsive CSS */}
       <style>{`
-        @keyframes slideInLeft {
-          from { transform: translateX(-100%); }
-          to   { transform: translateX(0); }
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+        @keyframes spin    { to   { transform: rotate(360deg); } }
         @media (min-width: 768px) {
-          .md-sidebar { display: flex !important; }
-          .main-offset { margin-left: 240px; }
-          .mobile-header { display: none !important; }
-          .mobile-bottom-nav { display: none !important; }
-        }
-        @media (max-width: 767px) {
-          .md-sidebar { display: none !important; }
-          .main-offset { margin-left: 0 !important; }
+          .admin-sidebar     { display: flex !important; }
+          .admin-main        { margin-left: 250px; }
+          .admin-topbar      { display: none !important; }
+          .admin-bottom-nav  { display: none !important; }
         }
       `}</style>
     </div>
   )
 }
 
-function SidebarInner({
-  section, onChange, logout,
-}: {
-  section: Section
-  onChange: (s: Section) => void
-  logout: () => void
+function SidebarInner({ section, onChange, logout }: {
+  section: Section; onChange: (s: Section) => void; logout: () => void
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Logo */}
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", paddingTop: 0 }}>
+      {/* Brand */}
       <div style={{
-        padding: "22px 20px 18px",
-        borderBottom: "1px solid rgba(201,168,76,0.1)",
+        padding: "24px 18px 20px",
+        borderBottom: "1px solid rgba(201,168,76,0.09)",
         display: "flex", alignItems: "center", gap: 12,
       }}>
         <div style={{
-          width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-          background: "rgba(201,168,76,0.12)",
-          border: "1px solid rgba(201,168,76,0.2)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 18,
+          width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+          background: "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08))",
+          border: "1px solid rgba(201,168,76,0.25)",
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19,
+          boxShadow: "0 0 14px rgba(201,168,76,0.1)",
         }}>☕</div>
         <div>
-          <p className="font-serif" style={{ color: "#f5f0e8", fontWeight: 700, fontSize: 15, lineHeight: 1.2 }}>
-            Cafe Admin
-          </p>
-          <p style={{ color: "#888880", fontSize: 11, marginTop: 2 }}>Management Portal</p>
+          <p className="font-serif" style={{ color: "#f5f0e8", fontWeight: 700, fontSize: 16, lineHeight: 1.1 }}>Cafe Admin</p>
+          <p style={{ color: "#666", fontSize: 11, marginTop: 3 }}>Management Portal</p>
         </div>
       </div>
 
-      {/* Nav items */}
-      <nav style={{ flex: 1, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2 }}>
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: "10px 10px 6px", overflowY: "auto" }}>
+        <p style={{ color: "#555", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "6px 8px 10px" }}>
+          Navigation
+        </p>
         {NAV.map(item => {
           const active = section === item.id
           return (
-            <button
-              key={item.id}
-              onClick={() => onChange(item.id)}
-              style={{
-                width: "100%", textAlign: "left",
-                display: "flex", alignItems: "center", gap: 12,
-                padding: "10px 12px",
-                borderRadius: 10, border: "none", cursor: "pointer",
-                background: active ? "rgba(201,168,76,0.1)" : "transparent",
-                transition: "background 0.15s",
-              }}
-            >
+            <button key={item.id} onClick={() => onChange(item.id)} style={{
+              width: "100%", textAlign: "left", marginBottom: 3,
+              display: "flex", alignItems: "center", gap: 11,
+              padding: "10px 12px", borderRadius: 11, border: "none", cursor: "pointer",
+              background: active ? "rgba(201,168,76,0.11)" : "transparent",
+              transition: "background 0.15s",
+            }}>
               <div style={{
-                width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-                background: active ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
+                width: 34, height: 34, borderRadius: 9, flexShrink: 0,
+                background: active ? "rgba(201,168,76,0.18)" : "rgba(255,255,255,0.04)",
+                border: `1px solid ${active ? "rgba(201,168,76,0.35)" : "rgba(255,255,255,0.06)"}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                color: active ? "#c9a84c" : "#888880",
-                border: `1px solid ${active ? "rgba(201,168,76,0.3)" : "rgba(255,255,255,0.06)"}`,
-              }}>
-                {item.icon}
-              </div>
+                color: active ? "#c9a84c" : "#666",
+                transition: "all 0.15s",
+              }}>{item.icon}</div>
               <div style={{ flex: 1 }}>
-                <p style={{ color: active ? "#c9a84c" : "#e0d8cc", fontWeight: 600, fontSize: 13 }}>
+                <p style={{ color: active ? "#c9a84c" : "#d0c8c0", fontWeight: 600, fontSize: 13, lineHeight: 1.2 }}>
                   {item.label}
                 </p>
-                <p style={{ color: "#666", fontSize: 11, marginTop: 1 }}>{item.desc}</p>
+                <p style={{ color: "#555", fontSize: 11, marginTop: 1 }}>{item.desc}</p>
               </div>
-              {active && (
-                <ChevronRight style={{ width: 14, height: 14, color: "#c9a84c", flexShrink: 0 }} />
-              )}
+              {active && <ChevronRight style={{ width: 13, height: 13, color: "#c9a84c", flexShrink: 0 }} />}
             </button>
           )
         })}
       </nav>
 
-      {/* Divider + Logout */}
-      <div style={{ padding: "10px 10px 20px", borderTop: "1px solid rgba(201,168,76,0.08)" }}>
-        <button
-          onClick={logout}
-          style={{
-            width: "100%", textAlign: "left",
-            display: "flex", alignItems: "center", gap: 10,
-            padding: "10px 12px",
-            borderRadius: 10, border: "none", cursor: "pointer",
-            background: "transparent", color: "#888880",
-            transition: "background 0.15s, color 0.15s",
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = "rgba(224,85,85,0.08)"
-            ;(e.currentTarget as HTMLButtonElement).style.color = "#e05555"
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = "transparent"
-            ;(e.currentTarget as HTMLButtonElement).style.color = "#888880"
-          }}
+      {/* Logout */}
+      <div style={{ padding: "8px 10px 20px", borderTop: "1px solid rgba(201,168,76,0.08)" }}>
+        <button onClick={logout} style={{
+          width: "100%", display: "flex", alignItems: "center", gap: 11,
+          padding: "10px 12px", borderRadius: 11, border: "none", cursor: "pointer",
+          background: "transparent", color: "#888",
+          transition: "all 0.15s",
+        }}
+          onMouseEnter={e => { const b = e.currentTarget; b.style.background = "rgba(224,85,85,0.08)"; b.style.color = "#e05555" }}
+          onMouseLeave={e => { const b = e.currentTarget; b.style.background = "transparent"; b.style.color = "#888" }}
         >
           <div style={{
-            width: 34, height: 34, borderRadius: 8,
-            background: "rgba(224,85,85,0.08)",
-            border: "1px solid rgba(224,85,85,0.15)",
+            width: 34, height: 34, borderRadius: 9,
+            background: "rgba(224,85,85,0.08)", border: "1px solid rgba(224,85,85,0.18)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <LogOut style={{ width: 16, height: 16, color: "#e05555" }} />
+            <LogOut style={{ width: 15, height: 15, color: "#e05555" }} />
           </div>
           <span style={{ fontSize: 13, fontWeight: 500 }}>Sign Out</span>
         </button>
