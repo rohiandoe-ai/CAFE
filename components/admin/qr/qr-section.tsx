@@ -24,7 +24,10 @@ const SIZES = [
 export function QRSection() {
   const canvasRef = useRef<HTMLDivElement>(null)
 
-  const [url,     setUrl]     = useState("https://search.google.com/local/writereview?placeid=ChIJu6ZBnxTJ5zsRvHMC18xfZnQ")
+  // Default to current site origin so QR always points to the landing page
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "https://your-site.vercel.app"
+
+  const [url,     setUrl]     = useState(siteUrl)
   const [name,    setName]    = useState("House of Paloma")
   const [fg,      setFg]      = useState("#c9a84c")
   const [bg,      setBg]      = useState("#0a0a0a")
@@ -34,17 +37,20 @@ export function QRSection() {
   const [saving,  setSaving]  = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Load from Supabase on mount
+  // Load from Supabase on mount — QR points to THIS site's landing page, not Google
   useEffect(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : ""
+    setUrl(origin)
     getBusiness().then(b => {
-      if (b) { setUrl(b.google_review_url); setName(b.name) }
+      if (b) setName(b.name)
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [])
 
   const save = async () => {
     setSaving(true)
-    await updateBusiness({ name, google_review_url: url })
+    // Only save the bar name — google_review_url is separate
+    await updateBusiness({ name })
     setSaving(false); setSaved(true)
     setTimeout(() => setSaved(false), 2200)
   }
@@ -133,15 +139,18 @@ export function QRSection() {
               </p>
               <div>
                 <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#888880", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  Google Review URL
+                  Landing Page URL
                 </label>
                 <input
                   className="input-base"
                   value={url}
                   onChange={e => setUrl(e.target.value)}
-                  placeholder="https://search.google.com/local/writereview?placeid=..."
+                  placeholder="https://your-site.vercel.app"
                   style={{ fontSize: 13 }}
                 />
+                <p style={{ color: "#555", fontSize: 11, marginTop: 5 }}>
+                  📌 QR scan → this URL → customer leaves review
+                </p>
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#888880", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
