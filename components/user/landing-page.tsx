@@ -18,11 +18,11 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 
 const FALLBACK: Business = {
   id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-  name: "House of Paloma",
-  location: "Bandra West, Mumbai",
-  google_review_url: "https://search.google.com/local/writereview?placeid=ChIJu6ZBnxTJ5zsRvHMC18xfZnQ",
+  name: "Havana Jaipur",
+  location: "Jaipur, Rajasthan",
+  google_review_url: "https://search.google.com/local/writereview?placeid=ChIJWfw4aTDJbTkR2uANiQm7B-Y",
   logo_url: null,
-  admin_email: "admin@houseofpaloma.com",
+  admin_email: "admin@havanajaipur.com",
   admin_password: "admin123",
 }
 

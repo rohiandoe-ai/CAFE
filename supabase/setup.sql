@@ -199,10 +199,10 @@ END $$;
 INSERT INTO public.businesses (id, name, location, google_review_url, admin_email, admin_password)
 VALUES (
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    'House of Paloma',
-    'Bandra West, Mumbai',
-    'https://search.google.com/local/writereview?placeid=ChIJu6ZBnxTJ5zsRvHMC18xfZnQ',
-    'admin@houseofpaloma.com',
+    'Havana Jaipur',
+    'Jaipur, Rajasthan',
+    'https://search.google.com/local/writereview?placeid=ChIJWfw4aTDJbTkR2uANiQm7B-Y',
+    'admin@havanajaipur.com',
     'admin123'
 );
 
@@ -210,9 +210,9 @@ VALUES (
 INSERT INTO public.instagram_settings (cafe_id, instagram_url, username, follower_count)
 VALUES (
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    'https://www.instagram.com/houseofpaloma',
-    '@houseofpaloma',
-    '2.4K'
+    'https://www.instagram.com/havanajaipur/',
+    '@havanajaipur',
+    '10K'
 );
 
 -- Sample menu items
