@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { Star, Download, RefreshCw } from "lucide-react"
+import { Download, RefreshCw } from "lucide-react"
 import { getReviews, type Review } from "@/lib/supabase"
 import { formatDate } from "@/lib/utils"
 
@@ -35,7 +35,7 @@ export function ReviewsSection() {
   const mostCommon = (() => {
     if (!reviews.length) return "—"
     const c = [0,0,0,0,0,0]; reviews.forEach(r => c[r.rating]++)
-    return c.indexOf(Math.max(...c.slice(1))) + "⭐"
+    return c.indexOf(Math.max(...c.slice(1))) + " stars"
   })()
 
   const exportCSV = () => {
@@ -61,10 +61,23 @@ export function ReviewsSection() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ 
+      display: "flex", 
+      flexDirection: "column", 
+      gap: 20,
+      background: "linear-gradient(180deg, rgba(201,168,76,0.03) 0%, rgba(10,10,10,0.95) 100%)",
+      padding: "20px",
+      borderRadius: 16,
+      border: "1px solid rgba(201,168,76,0.08)"
+    }}>
       <div>
-        <h1 className="font-serif" style={{ color: "#f5f0e8", fontSize: 24, fontWeight: 700 }}>Reviews</h1>
-        <p style={{ color: "#888880", fontSize: 13, marginTop: 4 }}>All customer feedback</p>
+        <h1 className="font-serif" style={{ 
+          color: "#c9a84c", 
+          fontSize: 28, 
+          fontWeight: 700,
+          textShadow: "0 0 20px rgba(201,168,76,0.3)"
+        }}>Reviews</h1>
+        <p style={{ color: "#888880", fontSize: 13, marginTop: 4, letterSpacing: "0.05em" }}>All customer feedback</p>
       </div>
 
       {/* Summary cards */}
@@ -76,8 +89,8 @@ export function ReviewsSection() {
           { label: "Most Common",    value: mostCommon,     color: "#f5f0e8" },
         ].map(s => (
           <div key={s.label} style={{
-            background: "rgba(255,255,255,0.025)",
-            border: "1px solid rgba(201,168,76,0.1)",
+            background: "linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.02))",
+            border: "1px solid rgba(201,168,76,0.15)",
             borderRadius: 14, padding: "16px 18px",
           }}>
             <p style={{ color: s.color, fontSize: 24, fontWeight: 800, lineHeight: 1 }}>{s.value}</p>
@@ -93,30 +106,48 @@ export function ReviewsSection() {
           {[0,5,4,3,2,1].map(n => (
             <button key={n} onClick={() => setRatingF(n)} style={{
               padding: "6px 12px", borderRadius: 99, border: "none", cursor: "pointer",
-              background: ratingFilter === n ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
+              background: ratingFilter === n ? "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.1))" : "rgba(255,255,255,0.04)",
               color: ratingFilter === n ? "#c9a84c" : "#888",
-              boxShadow: `0 0 0 1px ${ratingFilter === n ? "rgba(201,168,76,0.3)" : "rgba(255,255,255,0.07)"}`,
+              boxShadow: `0 0 0 1px ${ratingFilter === n ? "rgba(201,168,76,0.3)" : "rgba(201,168,76,0.1)"}`,
               fontSize: 12, fontWeight: 600, transition: "all 0.15s",
-            } as React.CSSProperties}>{n === 0 ? "All" : `${n}⭐`}</button>
+            } as React.CSSProperties}>{n === 0 ? "All" : `${n} stars`}</button>
           ))}
         </div>
 
         {/* Date range */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 240 }}>
-          <input type="date" className="input-base" style={{ flex: 1, height: 36, fontSize: 12, minWidth: 0 }}
+          <input type="date" className="input-base" style={{ 
+            flex: 1, height: 36, fontSize: 12, minWidth: 0,
+            background: "rgba(201,168,76,0.05)",
+            border: "1px solid rgba(201,168,76,0.15)",
+            borderRadius: 8,
+            color: "#f5f0e8"
+          }}
             value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
-          <span style={{ color: "#555", fontSize: 13, flexShrink: 0 }}>—</span>
-          <input type="date" className="input-base" style={{ flex: 1, height: 36, fontSize: 12, minWidth: 0 }}
+          <span style={{ color: "#888", fontSize: 13, flexShrink: 0 }}>—</span>
+          <input type="date" className="input-base" style={{ 
+            flex: 1, height: 36, fontSize: 12, minWidth: 0,
+            background: "rgba(201,168,76,0.05)",
+            border: "1px solid rgba(201,168,76,0.15)",
+            borderRadius: 8,
+            color: "#f5f0e8"
+          }}
             value={dateTo} onChange={e => setDateTo(e.target.value)} />
         </div>
 
         <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
-          <button onClick={load} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#888" }}>
+          <button onClick={load} style={{ 
+            background: "rgba(201,168,76,0.08)", 
+            border: "1px solid rgba(201,168,76,0.15)", 
+            borderRadius: 8, width: 34, height: 34, 
+            display: "flex", alignItems: "center", justifyContent: "center", 
+            cursor: "pointer", color: "#c9a84c" 
+          }}>
             <RefreshCw style={{ width: 14, height: 14, animation: loading ? "spin 0.8s linear infinite" : "none" }} />
           </button>
           <button onClick={exportCSV} style={{
             display: "flex", alignItems: "center", gap: 6, padding: "0 14px", height: 34,
-            background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)",
+            background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.08))", border: "1px solid rgba(201,168,76,0.25)",
             borderRadius: 8, cursor: "pointer", color: "#c9a84c", fontSize: 13, fontWeight: 600,
           }}>
             <Download style={{ width: 14, height: 14 }} /> Export
@@ -155,8 +186,8 @@ function ReviewCard({ r }: { r: Review }) {
   const phone = r.customers?.phone ?? null
   return (
     <div style={{
-      background: "rgba(255,255,255,0.025)",
-      border: "1px solid rgba(201,168,76,0.1)",
+      background: "linear-gradient(135deg, rgba(201,168,76,0.06), rgba(201,168,76,0.02))",
+      border: "1px solid rgba(201,168,76,0.12)",
       borderRadius: 16, padding: "16px 18px",
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
@@ -169,22 +200,15 @@ function ReviewCard({ r }: { r: Review }) {
 
           {/* Stars */}
           <div style={{ display: "flex", alignItems: "center", gap: 3, marginBottom: 8 }}>
-            {[1,2,3,4,5].map(s => (
-              <Star key={s} style={{
-                width: 16, height: 16,
-                color: s <= r.rating ? "#c9a84c" : "#2a2a2a",
-                fill: s <= r.rating ? "#c9a84c" : "transparent",
-              }} />
-            ))}
-            <span style={{ color: "#c9a84c", fontWeight: 800, fontSize: 14, marginLeft: 4 }}>{r.rating}.0</span>
+            <span style={{ color: "#c9a84c", fontWeight: 800, fontSize: 14 }}>{r.rating} out of 5</span>
           </div>
 
           {/* Sub ratings */}
           {(r.food_rating || r.service_rating || r.atmosphere_rating) && (
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              {r.food_rating       && <span style={{ fontSize: 12, color: "#888" }}>Food: <b style={{ color: "#c9a84c" }}>{r.food_rating}⭐</b></span>}
-              {r.service_rating    && <span style={{ fontSize: 12, color: "#888" }}>Service: <b style={{ color: "#c9a84c" }}>{r.service_rating}⭐</b></span>}
-              {r.atmosphere_rating && <span style={{ fontSize: 12, color: "#888" }}>Atmos: <b style={{ color: "#c9a84c" }}>{r.atmosphere_rating}⭐</b></span>}
+              {r.food_rating       && <span style={{ fontSize: 12, color: "#888" }}>Food: <b style={{ color: "#c9a84c" }}>{r.food_rating}/5</b></span>}
+              {r.service_rating    && <span style={{ fontSize: 12, color: "#888" }}>Service: <b style={{ color: "#c9a84c" }}>{r.service_rating}/5</b></span>}
+              {r.atmosphere_rating && <span style={{ fontSize: 12, color: "#888" }}>Atmos: <b style={{ color: "#c9a84c" }}>{r.atmosphere_rating}/5</b></span>}
             </div>
           )}
         </div>

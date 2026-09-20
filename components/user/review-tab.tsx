@@ -52,13 +52,13 @@ export function ReviewTab({ business }: { business: Business }) {
     })
     setRevId(rev?.id ?? null)
     await new Promise(r => setTimeout(r, 1000))
-    setMessage(generateReview(rating, cafeName))
+    setMessage(generateReview(rating, cafeName, message))
     setGen(false)
   }
 
   const reshuffle = () => {
     setGen(true)
-    setTimeout(() => { setMessage(generateReview(rating, cafeName)); setGen(false) }, 500)
+    setTimeout(() => { setMessage(generateReview(rating, cafeName, message)); setGen(false) }, 500)
   }
 
   const copy = async () => {
@@ -87,12 +87,16 @@ export function ReviewTab({ business }: { business: Business }) {
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 28 }}>
         <div style={{
-          width: 72, height: 72, borderRadius: "50%",
-          background: "rgba(201,168,76,0.08)",
-          border: "1.5px solid rgba(201,168,76,0.35)",
+          width: 76, height: 76, borderRadius: "50%",
+          background: "#ffffff",
+          border: "2px solid rgba(201,168,76,0.45)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          margin: "0 auto 14px", fontSize: 28,
-        }}>☕</div>
+          margin: "0 auto 14px", overflow: "hidden",
+          padding: 6,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.5), 0 0 20px rgba(201,168,76,0.2)",
+        }}>
+          <img src="/havana-logo.png" alt="Havana Cafe Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+        </div>
         <h1 className="font-serif" style={{ color: "#f5f0e8", fontSize: 22, fontWeight: 700 }}>
           Welcome to {cafeName}
         </h1>

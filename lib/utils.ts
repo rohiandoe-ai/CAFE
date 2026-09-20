@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { REVIEW_TEMPLATES } from "./review-templates"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -30,27 +31,79 @@ export function fillTemplate(message: string, vars: Record<string, string>): str
   return message.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? `{${key}}`)
 }
 
-export function generateReview(rating: number, cafeName: string): string {
-  const messages: Record<number, string[]> = {
-    5: [
-      `Absolutely love ${cafeName}! The ambiance is stunning, the food is incredible, and the service is top-notch. Every visit feels special. Highly recommend to everyone! ⭐⭐⭐⭐⭐`,
-      `${cafeName} never disappoints! Had an amazing time here. The food was delicious, service was prompt and friendly. Will definitely be coming back! 🙌`,
-    ],
-    4: [
-      `Really enjoyed my visit to ${cafeName}. Great food and lovely atmosphere. Service was good too. Would definitely recommend for a nice evening out! 😊`,
-      `${cafeName} is a wonderful spot. The quality of food and drinks is excellent. Had a great experience overall and will definitely return! 👍`,
-    ],
-    3: [
-      `Good experience at ${cafeName}. The food was tasty and the place has a nice vibe. Service could be a bit faster but overall a decent visit. 🙂`,
-      `Decent visit to ${cafeName}. Food was good, atmosphere was pleasant. A solid choice for a casual outing. Would give it another try! 👌`,
-    ],
-    2: [
-      `Mixed experience at ${cafeName}. Some things were good but there's room for improvement. Hope to see better on my next visit. 🤞`,
-    ],
-    1: [
-      `Had some issues during my visit to ${cafeName}. The team could work on improving the experience. Hoping for better next time. 🙏`,
-    ],
+const STORAGE_KEY = "grs_seen_reviews_v2"
+
+// In-memory fallback if storage isn't available
+const memorySeen: Record<number, number[]> = {
+  1: [],
+  2: [],
+  3: [],
+  4: [],
+  5: [],
+}
+
+function getSeenIndices(rating: number): number[] {
+  if (typeof window !== "undefined") {
+    try {
+      const raw = sessionStorage.getItem(`${STORAGE_KEY}_${rating}`) || localStorage.getItem(`${STORAGE_KEY}_${rating}`)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) return parsed
+      }
+    } catch {}
   }
-  const options = messages[rating] ?? messages[3]
-  return options[Math.floor(Math.random() * options.length)]
+  return memorySeen[rating] ?? []
+}
+
+function saveSeenIndices(rating: number, indices: number[]): void {
+  memorySeen[rating] = indices
+  if (typeof window !== "undefined") {
+    try {
+      sessionStorage.setItem(`${STORAGE_KEY}_${rating}`, JSON.stringify(indices))
+      localStorage.setItem(`${STORAGE_KEY}_${rating}`, JSON.stringify(indices))
+    } catch {}
+  }
+}
+
+export function generateReview(rating: number, cafeName: string, currentMessage?: string): string {
+  const safeRating = rating >= 1 && rating <= 5 ? rating : 5
+  const templates = REVIEW_TEMPLATES[safeRating] ?? REVIEW_TEMPLATES[5]
+
+  if (!templates || templates.length === 0) {
+    return `Great experience at ${cafeName}!`
+  }
+
+  // Find index of current message if present
+  let currentIndex = -1
+  if (currentMessage) {
+    const trimmed = currentMessage.trim()
+    currentIndex = templates.findIndex(tpl => tpl.replace(/\{name\}/g, cafeName).trim() === trimmed)
+  }
+
+  const seen = getSeenIndices(safeRating)
+
+  // Filter available indices not yet seen in this rotation and not equal to current
+  let available = templates
+    .map((_, idx) => idx)
+    .filter(idx => !seen.includes(idx) && idx !== currentIndex)
+
+  // If all 100 templates have been exhausted, reset the rotation
+  if (available.length === 0) {
+    available = templates
+      .map((_, idx) => idx)
+      .filter(idx => idx !== currentIndex)
+    
+    // Reset seen history keeping only currentIndex
+    const resetSeen = currentIndex !== -1 ? [currentIndex] : []
+    saveSeenIndices(safeRating, resetSeen)
+  }
+
+  // Pick random index from remaining available pool
+  const chosenIndex = available[Math.floor(Math.random() * available.length)]
+
+  // Track the chosen index
+  const updatedSeen = [...getSeenIndices(safeRating), chosenIndex]
+  saveSeenIndices(safeRating, updatedSeen)
+
+  return templates[chosenIndex].replace(/\{name\}/g, cafeName)
 }

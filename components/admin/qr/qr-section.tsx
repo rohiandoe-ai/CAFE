@@ -27,6 +27,7 @@ type TemplateType = "cafe" | "minimal"
 export function QRSection() {
   const canvasRef   = useRef<HTMLDivElement>(null)
   const bgImgRef    = useRef<HTMLImageElement | null>(null)
+  const logoImgRef  = useRef<HTMLImageElement | null>(null)
 
   const [url,      setUrl]      = useState("")
   const [name,     setName]     = useState("Havana Jaipur")
@@ -39,13 +40,18 @@ export function QRSection() {
   const [loading,  setLoading]  = useState(true)
   const [bgLoaded, setBgLoaded] = useState(false)
 
-  // Pre-load the background image once
+  // Pre-load the background image and logo once
   useEffect(() => {
     const img = new Image()
     img.crossOrigin = "anonymous"
     img.onload  = () => { bgImgRef.current = img; setBgLoaded(true) }
     img.onerror = () => setBgLoaded(false)
     img.src = BG_IMAGE_URL
+
+    const logo = new Image()
+    logo.crossOrigin = "anonymous"
+    logo.onload = () => { logoImgRef.current = logo }
+    logo.src = "/havana-logo.png"
   }, [])
 
   useEffect(() => {
@@ -67,7 +73,7 @@ export function QRSection() {
     const qrEl = canvasRef.current?.querySelector("canvas")
     if (!qrEl) return
     if (template === "cafe") {
-      downloadCafeTemplate(qrEl, name, fg, bgImgRef.current)
+      downloadCafeTemplate(qrEl, name, fg, bgImgRef.current, logoImgRef.current)
     } else {
       downloadMinimal(qrEl, name, fg, bg)
     }
@@ -99,7 +105,7 @@ export function QRSection() {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {([
-                  { id: "cafe",    label: "☕ Cafe Style", desc: "With texture bg" },
+                  { id: "cafe",    label: "Cafe Style", desc: "With texture bg" },
                   { id: "minimal", label: "⬛ Minimal",    desc: "Clean & simple"  },
                 ] as { id: TemplateType; label: string; desc: string }[]).map(t => (
                   <button key={t.id} onClick={() => setTemplate(t.id)} style={{
@@ -309,8 +315,32 @@ export function QRSection() {
                   Scan Now
                 </p>
 
-                {/* Coffee cup */}
-                <p style={{ position: "relative", zIndex: 1, fontSize: 28 }}>☕</p>
+                {/* Cafe logo */}
+                <div style={{
+                  position: "relative",
+                  zIndex: 1,
+                  width: 52,
+                  height: 52,
+                  borderRadius: "50%",
+                  background: "#ffffff",
+                  border: `1.5px solid ${fg}33`,
+                  padding: 4,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                }}>
+                  <img 
+                    src="/havana-logo.png" 
+                    alt="Havana Cafe Logo" 
+                    style={{ 
+                      width: "100%", 
+                      height: "100%", 
+                      objectFit: "contain" 
+                    }} 
+                  />
+                </div>
               </div>
             ) : (
               /* ── Minimal preview ── */
@@ -371,7 +401,8 @@ function downloadCafeTemplate(
   qrEl: HTMLCanvasElement,
   name: string,
   fg: string,
-  bgImg: HTMLImageElement | null
+  bgImg: HTMLImageElement | null,
+  logoImg: HTMLImageElement | null
 ) {
   const W = 500, H = 820
   const out = document.createElement("canvas")
@@ -462,10 +493,26 @@ function downloadCafeTemplate(
     ctx.fill()
   }
 
-  // Coffee cup emoji
-  ctx.font = "52px Arial"
-  ctx.textAlign = "center"
-  ctx.fillText("☕", W / 2 + 130, H - 68)
+  // Havana Cafe logo
+  if (logoImg) {
+    ctx.save()
+    ctx.fillStyle = "#ffffff"
+    ctx.beginPath()
+    ctx.arc(W / 2 + 130, H - 70, 28, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.strokeStyle = fg + "44"
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+    ctx.drawImage(logoImg, W / 2 + 130 - 24, H - 70 - 24, 48, 48)
+    ctx.restore()
+  } else {
+    ctx.font = "bold 16px Arial"
+    ctx.textAlign = "center"
+    ctx.fillStyle = fg
+    ctx.fillText("HAVANA", W / 2 + 130, H - 75)
+    ctx.font = "12px Arial"
+    ctx.fillText("CAFE", W / 2 + 130, H - 60)
+  }
 
   // Decorative stars
   ctx.fillStyle = fg + "55"

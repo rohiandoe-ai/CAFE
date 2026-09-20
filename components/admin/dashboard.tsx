@@ -168,12 +168,15 @@ function SidebarInner({ section, onChange, logout }: {
         display: "flex", alignItems: "center", gap: 12,
       }}>
         <div style={{
-          width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-          background: "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08))",
-          border: "1px solid rgba(201,168,76,0.25)",
-          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19,
-          boxShadow: "0 0 14px rgba(201,168,76,0.1)",
-        }}>☕</div>
+          width: 42, height: 42, borderRadius: "50%", flexShrink: 0,
+          background: "#ffffff",
+          border: "1.5px solid rgba(201,168,76,0.35)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 0 14px rgba(201,168,76,0.15)", overflow: "hidden",
+          padding: 3,
+        }}>
+          <img src="/havana-logo.png" alt="Havana Cafe Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+        </div>
         <div>
           <p className="font-serif" style={{ color: "#f5f0e8", fontWeight: 700, fontSize: 16, lineHeight: 1.1 }}>Cafe Admin</p>
           <p style={{ color: "#666", fontSize: 11, marginTop: 3 }}>Management Portal</p>
