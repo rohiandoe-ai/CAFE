@@ -1,4 +1,5 @@
 // 500 Unique Review Templates (100 per rating 1 to 5)
+// Rating 3, 4, and 5 are crafted as the BEST high-converting, positive, and authentic reviews.
 // All templates support dynamic `{name}` replacement.
 
 export const REVIEW_TEMPLATES: Record<number, string[]> = {
@@ -125,115 +126,115 @@ export const REVIEW_TEMPLATES: Record<number, string[]> = {
   ],
 
   4: [
-    // 1-10: Great Food, Slight Wait
-    "Really enjoyed our visit to {name}! The food was mouth-watering, though the kitchen took a few extra minutes during the rush.",
-    "Delicious meal at {name}! Everything tasted wonderful and fresh. Just a slight wait for the main course, but worth it.",
-    "Great flavors at {name}! The pizza and appetizers were superb. Service was slightly delayed, but the team was very polite.",
-    "Had a lovely lunch at {name}. The pasta was authentic and rich. A small wait for the order, but we really enjoyed our time.",
-    "The taste of the food at {name} was top quality! A minor delay during peak dinner time, but overall a solid experience.",
-    "Wonderful flavors at {name}! Starters came fast, while mains took slightly longer, but the taste made up for it completely.",
-    "Food was exceptional at {name}! Just took a bit longer than expected to arrive, but the staff kept us updated nicely.",
-    "Tasty and wholesome food at {name}! The kitchen was packed on a Saturday evening, but the flavors were well worth the wait.",
-    "Loved the recipes at {name}! The burgers and fries were delicious. Service could be a minute faster, but overall very happy.",
-    "Really good culinary standards at {name}. High quality ingredients and great taste, with just a tiny wait on starters."
+    // 1-10: Great Food & Fresh Flavors
+    "Really enjoyed our visit to {name}! The food was mouth-watering, freshly prepared, and full of authentic flavor.",
+    "Delicious meal at {name}! Everything tasted wonderful and fresh. The presentation and seasonings were spot on.",
+    "Great flavors at {name}! The pizza and appetizers were superb, and the staff was extremely warm and polite.",
+    "Had a lovely lunch at {name}. The pasta was authentic and rich, paired with fantastic refreshing beverages.",
+    "The taste of the food at {name} was top quality! Fresh ingredients and lovely plating made it very special.",
+    "Wonderful flavors at {name}! Starters arrived fresh and crispy, while the mains were hearty and flavorful.",
+    "Food was exceptional at {name}! Truly enjoyed the gourmet burgers, seasoned fries, and creamy pasta.",
+    "Tasty and wholesome food at {name}! The recipes are authentic and the flavors lingered long after the meal.",
+    "Loved the recipes at {name}! High quality ingredients and great taste across every dish we ordered.",
+    "Really good culinary standards at {name}. Delicious food served with care and great attention to detail."
   ,
-    // 11-20: Lovely Ambiance, Busy Peak Hours
-    "The ambiance at {name} is gorgeous! It was quite packed when we arrived, but the staff managed seating very well.",
-    "Super cozy vibe at {name}! Beautiful lights and decor. It gets lively and crowded on weekends, so arrive early.",
-    "Loved the aesthetic interiors of {name}! Seating was full initially, but once seated, we had a very pleasant time.",
-    "Very stylish cafe with pleasant decor! {name} gets quite busy in the evenings, but the vibe remains enjoyable.",
-    "{name} has such a charming setup. A little bustling during peak hours, but the overall atmosphere is delightful.",
-    "Great background music and beautiful seating at {name}. It was quite crowded, but the staff handled it gracefully.",
-    "Lovely place to hang out with friends! {name} has great energy, though finding a prime table on weekends takes patience.",
-    "The rooftop atmosphere at {name} is fantastic. A bit breezy and busy, but the overall ambiance is definitely a 4-star.",
-    "Really charming interior aesthetics at {name}. High footfall during dinner, but they accommodated us warmly.",
-    "Warm, rustic, and pleasant ambiance at {name}! Peak hours are crowded, but it speaks volumes about their popularity."
+    // 11-20: Lovely Ambiance & Aesthetics
+    "The ambiance at {name} is gorgeous! Beautiful lights, stylish decor, and a wonderfully positive vibe.",
+    "Super cozy vibe at {name}! The seating arrangement and aesthetic decor make it a truly charming venue.",
+    "Loved the aesthetic interiors of {name}! Chic design, comfortable furniture, and a very relaxing environment.",
+    "Very stylish cafe with pleasant decor! {name} has created a wonderful atmosphere for friends and families.",
+    "{name} has such a charming setup. Great background music, elegant lights, and comfortable corners throughout.",
+    "Great background music and beautiful seating at {name}. The whole experience was smooth and delightful.",
+    "Lovely place to hang out with friends! {name} offers wonderful energy, great aesthetics, and comfortable booths.",
+    "The rooftop atmosphere at {name} is fantastic. Breezy open-air seating combined with lovely evening lights.",
+    "Really charming interior aesthetics at {name}. The visual appeal makes your cafe visit feel extra special.",
+    "Warm, rustic, and pleasant ambiance at {name}! A fantastic destination for weekend chill and casual dining."
   ,
     // 21-30: Delicious Coffee & Beverages
-    "Great coffee at {name}! The brew was strong and flavorful. Pastry selection was slightly limited, but the drinks rocked.",
-    "Loved the iced teas and smoothies at {name}! Refreshing and well-made. A great spot for an afternoon beverage.",
-    "Coffee lovers will appreciate {name}! Great cappuccino and latte. Would love to see more dairy-free milk options.",
-    "Refreshing mocktails and tasty finger food at {name}. The drinks were presented beautifully, tasted crisp and fresh.",
-    "Had a great cold brew at {name}! Perfect temperature and strength. Snacks were good, overall a very pleasant afternoon.",
-    "The beverage menu at {name} has plenty of variety. Our drinks were delicious and served chilled. Very satisfying!",
-    "Great artisanal brews at {name}! The coffee was on point. Service was polite, definitely returning for my morning cup.",
-    "Loved the fruit coolers at {name}! Perfect balance of sweet and tangy. Good food pairings available too.",
-    "Very good shakes and frappes at {name}! Rich texture and great taste. A solid 4-star experience.",
-    "The hot chocolate and cappuccinos at {name} were comforting and rich. Lovely drink options throughout the menu."
+    "Great coffee at {name}! The brew was strong, aromatic, and had rich velvety foam. Highly recommended!",
+    "Loved the iced teas and smoothies at {name}! Refreshing, perfectly balanced, and served nice and chilled.",
+    "Coffee lovers will appreciate {name}! Great cappuccino, rich latte, and wonderful specialty cold brews.",
+    "Refreshing mocktails and tasty finger food at {name}. The drinks were presented beautifully and tasted crisp.",
+    "Had a great cold brew at {name}! Perfect temperature, smooth finish, and wonderful flavor profile.",
+    "The beverage menu at {name} has plenty of variety. Our drinks were delicious, vibrant, and very satisfying.",
+    "Great artisanal brews at {name}! The coffee was on point and the barista clearly knows their craft well.",
+    "Loved the fruit coolers at {name}! Perfect balance of sweet and tangy flavors. Will definitely order again.",
+    "Very good shakes and frappes at {name}! Rich texture, great chocolate flavor, and premium toppings.",
+    "The hot chocolate and cappuccinos at {name} were comforting and rich. Lovely drink options on the menu."
   ,
-    // 31-40: Friendly Staff with Minor Feedback
-    "Staff at {name} was very courteous and accommodating! Just took a little time to flag down a waiter for the bill.",
-    "Pleasant hospitality at {name}! The servers were friendly and patient while taking our customized order.",
-    "The team at {name} is warm and polite. A bit overwhelmed during the weekend rush, but they tried their best.",
-    "Good service at {name}! Staff gave great food recommendations that we enjoyed. Fast and courteous demeanor.",
-    "Friendly smiles from the staff at {name}. Service had a slight hiccup with one drink, but they resolved it promptly.",
-    "Helpful and well-mannered staff at {name}. They made sure our table had water and checked in on our satisfaction.",
-    "Staff at {name} greeted us warmly. A tiny delay in clearing plates, but overall very friendly and attentive.",
-    "Courteous team members at {name}. They explained the menu items nicely and made us feel comfortable throughout.",
-    "Prompt greeting and good manners from the crew at {name}. Kept the dining experience enjoyable from start to finish.",
-    "The hospitality at {name} is definitely commendable. Hard-working staff doing their best during peak hours."
+    // 31-40: Courteous Staff & Service
+    "Staff at {name} was very courteous and accommodating! Always attentive and made us feel right at home.",
+    "Pleasant hospitality at {name}! The servers were friendly, polite, and patient with our customized requests.",
+    "The team at {name} is warm and polite. Hard-working staff doing a wonderful job ensuring guest comfort.",
+    "Good service at {name}! Staff gave great food recommendations that we thoroughly enjoyed. Very polite crew.",
+    "Friendly smiles from the staff at {name}. They checked in on our table and made sure everything was fine.",
+    "Helpful and well-mannered staff at {name}. They made sure our glasses were full and plates were cleared promptly.",
+    "Staff at {name} greeted us warmly at the door. Prompt service, respectful attitudes, and great manners.",
+    "Courteous team members at {name}. They explained the signature dishes nicely and served with enthusiasm.",
+    "Prompt greeting and good manners from the crew at {name}. Kept the dining experience enjoyable throughout.",
+    "The hospitality at {name} is definitely commendable. Friendly staff that genuinely cares about your visit."
   ,
     // 41-50: Pleasant Vibe & Music
-    "Good music playlist at {name}! Set a lovely mood for our dinner. Volume was slightly loud for talking, but still nice.",
-    "Enjoyed the playlist and vibe at {name}. Cozy lighting and great acoustics. Makes for a relaxing hangout.",
-    "The mood lighting at {name} creates an intimate setting. Music was modern and upbeat. We had a great time.",
+    "Good music playlist at {name}! Set a lovely mood for our dinner. Upbeat, modern, and very enjoyable.",
+    "Enjoyed the playlist and vibe at {name}. Cozy lighting and great acoustics make for a very relaxing hangout.",
+    "The mood lighting at {name} creates an intimate setting. Wonderful soundtrack that complements the evening.",
     "Nice tunes playing in the background at {name}. Comfortable couches and relaxed seating arrangements.",
-    "The vibe at {name} is lively yet comforting. Music could be turned down a notch, but overall very positive.",
-    "Pleasant background melodies at {name} that didn't overpower conversation. Great cafe aesthetic all around.",
-    "Loved the evening lighting and chill beats at {name}. A great spot to unwind after a long working day.",
-    "Fun and upbeat environment at {name}. Clean tables, cozy corners, and good music make it a very nice visit.",
-    "Chill vibes throughout {name}! Perfect background soundtrack for chilling with close friends on a weekend.",
+    "The vibe at {name} is lively yet comforting. Perfect place to unwind with close friends after a busy week.",
+    "Pleasant background melodies at {name} that set a great tone without overpowering conversation.",
+    "Loved the evening lighting and chill beats at {name}. A great spot to unwind and enjoy good company.",
+    "Fun and upbeat environment at {name}. Clean tables, cozy corners, and good music make it a wonderful visit.",
+    "Chill vibes throughout {name}! Perfect background soundtrack for chilling with buddies over snacks.",
     "The interior acoustics and music choices at {name} were enjoyable. Felt relaxed from the moment we walked in."
   ,
-    // 51-60: Value & Portion Sizes
-    "Good portion sizes and fair pricing at {name}. The food was tasty and filled us up well. Solid value for money.",
-    "Reasonably priced menu at {name} given the upscale ambiance and fresh ingredients. We were very satisfied.",
-    "Generous servings for starters at {name}! Mains were slightly smaller in portion, but the taste was very good.",
-    "Good value for an upscale cafe experience at {name}. Quality was evident in every dish served to us.",
-    "Fair pricing structure at {name}. Tasty food and quality beverages without exorbitant charges. Well done!",
-    "Decent portion sizes and great seasoning at {name}. Left the cafe feeling satisfied and pleased with the meal.",
-    "Price matches the quality and aesthetic at {name}. Everything tasted fresh and well-prepared.",
-    "Satisfying meal portions at {name}! We shared a couple of platters and were full by the end. Good experience.",
-    "The combo meals and platters at {name} offer good value. Tasty options for casual dining with friends.",
-    "Good balance of quality and pricing at {name}. Worth visiting for both casual coffee and full meals."
+    // 51-60: Value & Quality
+    "Good portion sizes and fair pricing at {name}. The food was tasty, fulfilling, and gave great value for money.",
+    "Reasonably priced menu at {name} given the upscale ambiance, fresh ingredients, and prime location.",
+    "Generous servings and flavorful seasoning at {name}! Left the cafe feeling completely full and happy.",
+    "Good value for an upscale cafe experience at {name}. Quality was evident in every single dish served.",
+    "Fair pricing structure at {name}. Tasty food and quality handcrafted beverages without exorbitant bills.",
+    "Decent portion sizes and great seasoning at {name}. Loved the balance of taste, quantity, and presentation.",
+    "Price matches the high quality and aesthetics at {name}. Everything tasted fresh and well-prepared.",
+    "Satisfying meal portions at {name}! Shared platters with friends and everyone was thoroughly satisfied.",
+    "The combo meals and platters at {name} offer good value. Tasty options for casual dining with groups.",
+    "Great balance of quality and pricing at {name}. Worth visiting for both casual coffee and full meals."
   ,
-    // 61-70: Casual Hangout & Cleanliness
+    // 61-70: Cleanliness & Comfort
     "Clean and hygienic setup at {name}! Sanitized tables, clean cutlery, and a very fresh atmosphere throughout.",
-    "Great spot for hanging out with friends! {name} has spacious seating and clean washrooms. Very respectable place.",
+    "Great spot for hanging out with friends! {name} has spacious seating, clean washrooms, and tidy tables.",
     "Impressed with the hygiene standards at {name}. Everything looked clean, tidy, and well-maintained.",
     "A dependable place to meet friends! {name} is comfortable, tidy, and serves delicious quick bites.",
-    "Comfortable seating and well-maintained interiors at {name}. A pleasant cafe to spend an hour or two chatting.",
-    "Spotless dining area and quick table cleanup at {name}. It's great to see a cafe that takes cleanliness seriously.",
-    "Nice and airy setup at {name}. Tables are well-spaced so you don't feel cramped even when it's busy.",
+    "Comfortable seating and well-maintained interiors at {name}. A pleasant cafe to spend quality time.",
+    "Spotless dining area and quick table cleanup at {name}. Great to see a cafe that takes hygiene seriously.",
+    "Nice and airy setup at {name}. Tables are well-spaced so you enjoy privacy and comfort during your meal.",
     "Great cafe to lounge around on a lazy afternoon. {name} has friendly staff and a clean, relaxed environment.",
     "Neat and organized cafe! {name} delivers on cleanliness, comfort, and enjoyable cafe bites every time.",
     "Good hygiene, tidy tables, and comfortable booths at {name}. Definitely one of the cleaner cafes around."
   ,
-    // 71-80: Varied Menu & Presentation
-    "Extensive menu with lots of appetizing options at {name}! One or two items were unavailable, but the rest were great.",
+    // 71-80: Varied Menu & Plating
+    "Extensive menu with lots of appetizing options at {name}! Great variety of continental and fusion dishes.",
     "Food presentation at {name} is lovely! Very photogenic plating and delicious taste to back it up.",
-    "Creative menu at {name}! Good variety of continental and fusion dishes. We enjoyed our selection thoroughly.",
-    "Nicely curated food options at {name}. The presentation of starters was appetizing and colorful. Solid 4 stars.",
-    "Appreciated the diverse options on {name}'s menu. Something for everyone, whether you want light snacks or hearty meals.",
-    "The platters at {name} looked stunning when they arrived at our table. Good flavors to match the visual appeal.",
+    "Creative menu at {name}! Good variety of starters, mains, and desserts. We enjoyed our selection thoroughly.",
+    "Nicely curated food options at {name}. The presentation of starters was appetizing and colorful.",
+    "Appreciated the diverse options on {name}'s menu. Something for everyone, from light bites to hearty feasts.",
+    "The platters at {name} looked stunning when they arrived at our table. Great flavors to match the visual appeal.",
     "Impressive menu selection at {name}! Tried three new dishes today and each had a unique, pleasant flavor profile.",
     "Great variety of vegetarian and non-vegetarian choices at {name}. Plating was neat and appetite-inducing.",
-    "Good culinary choices on the menu at {name}. Chef clearly puts thought into presentation and garnishing.",
+    "Good culinary choices on the menu at {name}. The chef clearly puts thought into presentation and garnishing.",
     "Well-designed menu with clear descriptions at {name}. The food looked just as good as pictured."
   ,
-    // 81-90: Overall Experience
-    "Overall a very positive experience at {name}! Delicious food, nice ambiance, and reasonable waiting times.",
-    "Had an enjoyable time at {name}. A few minor things could be refined, but definitely a strong 4-star venue.",
+    // 81-90: Overall Satisfaction
+    "Overall a very positive experience at {name}! Delicious food, nice ambiance, and prompt service throughout.",
+    "Had an enjoyable time at {name}. Great food, friendly staff, and a lovely ambient atmosphere.",
     "Solid cafe experience at {name}! Great for casual meetups, dates, or family tea time. Will visit again.",
     "Enjoyed the dining experience at {name}. The staff is polite, food is tasty, and the location is convenient.",
-    "A very good cafe that gets most things right! {name} has become our go-to spot for casual evening snacks.",
-    "Very pleased with our evening at {name}. Small wait on food, but overall quality and hospitality were commendable.",
+    "A very good cafe that gets everything right! {name} has become our favorite spot for casual evening snacks.",
+    "Very pleased with our evening at {name}. High quality food, delicious coffee, and commendable hospitality.",
     "Good food, good vibes, and good company at {name}. A reliable place for an enjoyable meal.",
     "Comfortable ambiance and flavorful food make {name} well worth a visit. Happy with the overall service.",
     "Had a wonderful time at {name}! Will gladly bring more friends along on our next visit.",
-    "Solid 4-star performance by {name}. Well managed, tasty dishes, and lovely ambient atmosphere."
+    "Wonderful performance by {name}. Well managed, tasty dishes, and lovely ambient atmosphere throughout."
   ,
-    // 91-100: Recommendations
+    // 91-100: Warm Recommendations
     "Would definitely recommend {name} to anyone looking for good food and a trendy vibe in the area!",
     "Great addition to the cafe scene! {name} delivers consistent quality and a warm welcoming atmosphere.",
     "A solid choice for evening coffee or dinner! {name} impressed us with its flavors and courteous staff.",
@@ -243,129 +244,129 @@ export const REVIEW_TEMPLATES: Record<number, string[]> = {
     "A very satisfying visit to {name}! I will be returning soon to explore more of their signature menu items.",
     "If you're in the neighborhood, {name} is a reliable choice for delicious snacks and refreshing drinks.",
     "Thumbs up to {name}! Great ambiance, friendly staff, and tasty dishes that leave you satisfied.",
-    "Really good experience at {name}. With just a tiny speed bump fixed in the kitchen, it would easily be 5 stars!"
+    "Really good experience at {name}. Top-notch food, warm people, and a vibe that makes you want to return!"
   ],
 
   3: [
-    // 1-10: Average Taste
-    "An average experience at {name}. The food was decent, but nothing truly stood out in terms of flavor.",
-    "Food at {name} was okay. Not bad, but didn't have that wow factor I was expecting from the photos.",
-    "The taste was pretty standard at {name}. Edible and warm, but lacked rich seasonings and punch.",
-    "Mediocre flavors at {name}. The starters were alright, but the main course was fairly bland.",
-    "Food quality was average at {name}. Good for a quick bite, but don't expect gourmet restaurant standards.",
-    "Taste was strictly okay at {name}. Some dishes needed more salt and seasoning to bring out the flavors.",
-    "Nothing exceptional about the food at {name}. Standard cafe fare that you can get almost anywhere.",
-    "Average preparation at {name}. The pasta sauce was somewhat runny and the garlic bread was a bit dry.",
-    "Decent food at {name}, but feels like the recipes could use more refinement and better spice balance.",
-    "The food at {name} was neither memorable nor terrible. Just a middle-of-the-road dining experience."
+    // 1-10: Friendly Vibe & Hangout
+    "Had a really pleasant time at {name}! The ambience is warm, staff is courteous, and the food was very tasty.",
+    "Loved the calm and cozy atmosphere at {name}. Great spot to enjoy good food and relax with friends.",
+    "Good food and lovely music at {name}! The pasta was delicious and the mocktails were very refreshing.",
+    "Really liked the vibe at {name}. The seating is comfortable and the staff is very polite and attentive.",
+    "A delightful cafe experience at {name}! Fresh food, good coffee, and a very welcoming environment.",
+    "{name} has such a charming and relaxed setting. Perfect place for casual meetups and delicious bites.",
+    "Enjoyed every bit of our visit to {name}. The starters were flavorful and served piping hot!",
+    "Very nice cafe with great hospitality! The team at {name} made sure we had a comfortable time.",
+    "Loved the aesthetics and cozy corners at {name}. Food was tasty and coffee was brewed just right.",
+    "Such a pleasant place to unwind! {name} offers good food, soothing music, and wonderful service."
   ,
-    // 11-20: Price vs Value
-    "Felt a bit overpriced for the portions served at {name}. Ambiance is nice, but food value was strictly average.",
-    "A bit steep on the pocket for what is offered at {name}. Taste was fine, but portions were quite small.",
-    "The ambiance justifies some of the pricing at {name}, but the food quality needs to step up to match the bill.",
-    "Average value for money at {name}. You pay mostly for the aesthetic decor rather than extraordinary taste.",
-    "Portion sizes at {name} could be slightly bigger considering the prices charged on the menu.",
-    "Expensive for standard cafe items at {name}. Good place to click photos, but food value is just 3 stars.",
-    "The bill felt a bit high compared to our satisfaction level at {name}. Average food for premium pricing.",
-    "Decent spot, but {name} charges a premium that isn't fully reflected in the culinary execution.",
-    "Value was fair, but could be better at {name}. The sandwiches and fries were quite ordinary for the price.",
-    "Pricing is on the higher side at {name}, while the taste remains strictly in the average territory."
+    // 11-20: Tasty Snacks & Bites
+    "The pizza and garlic bread at {name} were delicious! Fresh ingredients and great crust. Enjoyed it!",
+    "Tasty snacks and great drinks at {name}. The sandwiches were freshly grilled and very satisfying.",
+    "Really good culinary choices at {name}. Everything we ordered was fresh, flavorful, and nicely presented.",
+    "Loved the crispy starters at {name}! Perfect seasoning and generous dips. Will definitely order again.",
+    "A wonderful food experience at {name}! The burger was juicy and the fries were golden and crisp.",
+    "Good food that hits the spot! {name} serves fresh, appetizing dishes that make you want to come back.",
+    "The pasta at {name} was creamy, flavorful, and cooked to perfection. Loved the overall taste!",
+    "Really enjoyed the finger food and platters at {name}. Great quality and very fulfilling meal.",
+    "The chef at {name} knows how to balance flavors nicely. Every dish on our table was enjoyable.",
+    "Fresh, piping hot food with great taste! {name} delivers a very satisfying cafe dining experience."
   ,
-    // 21-30: Service Delays
-    "The service at {name} was quite sluggish today. We had to wait almost 35 minutes for our first dish.",
-    "Decent food, but slow service at {name}. The staff seemed a bit scattered and took time to bring our bill.",
-    "Waited quite a while for our coffee and snacks at {name}. Service speed needs noticeable improvement.",
-    "The staff was polite, but service at {name} was slow. Drinks arrived long before the starters were ready.",
-    "Speed of service at {name} could definitely be better. Long gaps between ordering and receiving the food.",
-    "Service was delayed despite the cafe not being completely packed. {name} needs better kitchen coordination.",
-    "Had to follow up twice on our order at {name}. Staff was nice, but turnaround time was below expectations.",
-    "Took a long time to get our food at {name}. Good ambiance helped pass the time, but service was slow.",
-    "The waiting time tested our patience at {name}. Once the food arrived it was fine, but the delay was noticeable.",
-    "Average service efficiency at {name}. Took 20 minutes just to get a bottle of water and menu cards."
+    // 21-30: Good Coffee & Beverages
+    "The cold coffee at {name} is simply fantastic! Rich, creamy, and served at the perfect chill.",
+    "Loved the iced teas and fresh coolers at {name}. Very refreshing drinks to pair with evening snacks.",
+    "A great spot for coffee lovers! {name} serves aromatic brews that brighten up your day instantly.",
+    "The beverage menu at {name} is impressive. Had a lovely fruit smoothie that was naturally sweet and thick.",
+    "Superb hot chocolate and lattes at {name}! So comforting and rich in flavor. Highly enjoyed it.",
+    "The drinks at {name} are beautifully crafted and taste so refreshing. Perfect for an afternoon hangout.",
+    "Loved their signature coolers at {name}. Chilled, zesty, and perfect for beating the heat with friends.",
+    "Great coffee and cozy seating make {name} a wonderful place to sit and chat for hours.",
+    "The shakes at {name} are thick, delicious, and made with top quality ingredients. Very happy!",
+    "Refreshing drinks and great hospitality at {name}. The mint mojito was exceptionally crisp and tasty."
   ,
-    // 31-40: Mixed Bag Dishes
-    "A mixed experience at {name}. The pizza was enjoyable, but the pasta was quite underwhelming and bland.",
-    "Some hits and some misses at {name}. Loved the cold coffee, but the burger patty was dry and overcooked.",
-    "Inconsistent quality at {name}. Starters were fresh and crispy, while the main course felt under-seasoned.",
-    "One dish was good while the other was mediocre at {name}. Hope the kitchen achieves more consistency.",
-    "The beverage was flavorful, but the snacks at {name} were oily and lacked crispness. 3 stars overall.",
-    "Half of our order at {name} was good, the other half fell flat. A 50-50 experience across our table.",
-    "The fries were great, but the sandwich filling at {name} was minimal. A mixed culinary bag today.",
-    "Liked the dessert at {name}, but the savory dishes were just passable. Needs more balanced execution.",
-    "Drinks were well-made at {name}, but the food needs substantial improvement to match up. Average visit.",
-    "Some items tasted fresh while others felt reheated at {name}. Quality consistency is clearly needed."
+    // 31-40: Cozy Seating & Ambience
+    "Such a cozy and welcoming vibe at {name}! The lighting and decor create a very relaxing mood.",
+    "Comfortable seating and beautiful decor at {name}. A great place to chill, read, or work peacefully.",
+    "Loved the aesthetic interior of {name}! Plenty of photo spots and the music playlist was great.",
+    "{name} has a lovely peaceful environment. You can sit comfortably without feeling rushed at all.",
+    "The decor at {name} is stylish and modern. Felt very relaxed the moment we walked through the doors.",
+    "Great background music that complements conversation at {name}. Comfortable chairs and clean tables.",
+    "A hidden gem for casual evenings! {name} offers a charming ambiance paired with delicious food.",
+    "Loved the open, airy feel and tasteful lighting at {name}. Makes your cafe visit feel extra special.",
+    "Warm, inviting, and wonderfully decorated! {name} is a great place to spend quality time with loved ones.",
+    "The vibe at {name} puts you at ease right away. Pleasant interiors and a very peaceful crowd."
   ,
-    // 41-50: Noise & Crowding
-    "Very loud music at {name}. Hard to have a normal conversation without having to raise your voice.",
-    "The cafe was very noisy during our visit to {name}. Seating was close together, feeling slightly cramped.",
-    "Decor is nice at {name}, but the background noise level made it difficult to relax or chat comfortably.",
-    "A bit too chaotic during evening hours at {name}. Staff was rushing around and music was blasting.",
-    "The acoustics at {name} amplify the chatter. It was difficult to hear each other across the table.",
-    "Seating density is high at {name}. Tables are placed very close to one another, reducing privacy.",
-    "Energetic vibe at {name}, but too noisy for a relaxed evening. Good for parties, not great for casual conversations.",
-    "Music was so loud at {name} that we had to repeat our order three times to the server. An okay visit.",
-    "The crowd was large and the cafe felt slightly overwhelmed. {name} needs better crowd control.",
-    "Loud atmosphere at {name}. If you're looking for a peaceful cafe, this might not be the best pick."
+    // 41-50: Courteous Staff
+    "The staff at {name} was very courteous and accommodating. They served us with genuine smiles!",
+    "Prompt service and well-mannered staff at {name}. They made sure our glasses were always filled.",
+    "Helpful team members at {name} who gave us great dish recommendations. Very pleasant experience!",
+    "The hospitality at {name} is truly commendable. Attentive without being intrusive. Good job!",
+    "Friendly faces and quick service at {name}! The staff was very polite and made us feel welcome.",
+    "Appreciated the fast service and warm behavior of the crew at {name}. Everything went smoothly.",
+    "Staff at {name} was very patient while taking our customized orders. Great customer handling!",
+    "Courteous service and good attention to detail at {name}. We felt well taken care of throughout.",
+    "Kudos to the serving team at {name}! They were polite, efficient, and very cooperative.",
+    "Warm greeting at the entrance and respectful service at our table. {name} has a very good team!"
   ,
-    // 51-60: Ordinary Hospitality
-    "The staff at {name} was strictly neutral. No greeting, no follow-up, just did the bare minimum required.",
-    "Hospitality was just okay at {name}. The staff didn't seem particularly enthusiastic or attentive.",
-    "Service felt mechanical at {name}. Waiters took orders and dropped plates without much warmth or courtesy.",
-    "Staff at {name} was neither rude nor friendly. A very indifferent service experience throughout the meal.",
-    "Could use better hospitality training for the floor staff at {name}. Lacked attention to customer comfort.",
-    "Nobody checked if our food was fine or if we needed anything else at {name}. Basic service standards.",
-    "The staff was busy chatting among themselves near the counter at {name} while customers were waiting.",
-    "Indifferent service at {name}. Had to stand up and walk to the counter to ask for tissue papers and napkins.",
-    "Hospitality was lackluster at {name}. A warmer approach from the crew would make a big difference.",
-    "Basic service at {name}. Nobody seemed particularly interested in ensuring a memorable dining experience."
+    // 51-60: Relaxing Experience
+    "Had a relaxing afternoon at {name}. Quiet ambience, good Wi-Fi, and delicious cappuccino.",
+    "Perfect place to unwind after a busy day! {name} provides a calm and peaceful sanctuary.",
+    "Enjoyed a peaceful coffee break at {name}. Comfortable atmosphere and very polite staff.",
+    "A refreshing break from the daily grind! {name} has a soothing vibe that helps you relax completely.",
+    "Spent a lovely two hours at {name} catching up on reading while enjoying delicious iced coffee.",
+    "The calm energy at {name} is wonderful. Great place to reflect, write, or have gentle conversations.",
+    "If you need a quiet, comfortable cafe to relax, {name} is a top choice. Loved the vibe!",
+    "Such a comforting space! {name} combines great coffee, soft music, and a peaceful atmosphere.",
+    "Felt refreshed after visiting {name}. Good energy, pleasant people, and delicious refreshments.",
+    "A serene retreat in the city! {name} offers the ideal environment to slow down and savor your meal."
   ,
-    // 61-70: Menu Availability & Options
-    "Several popular items on the menu were unavailable during our visit to {name}. Limited our choices.",
-    "Disappointed that two of the signature dishes we wanted to try were out of stock at {name}.",
-    "The menu has many items listed, but {name} had multiple exclusions today. Ended up settling for second choices.",
-    "Limited vegetarian selections available today at {name}. The available items were okay, but choices felt restricted.",
-    "Out of ice and fresh mint when we ordered mocktails at {name}. Had to switch drinks halfway through.",
-    "A few key ingredients were missing at {name}, so our preferred dishes could not be made. Fairly average.",
-    "Menu variety looked promising, but {name} was out of basic supplies on a regular weekday afternoon.",
-    "Stock management at {name} needs work. Had to re-order twice because kitchen ran out of ingredients.",
-    "Limited dessert options were available at {name}. Only one brownie flavor left by 7 PM.",
-    "Menu execution was restricted due to missing items at {name}. What we got was edible, but not what we wanted."
+    // 61-70: Clean & Pleasant
+    "Very clean and hygienic cafe! Tables at {name} were spotless and cutlery was properly sanitized.",
+    "Impressed with the neat and tidy setup at {name}. The premises and washrooms were very clean.",
+    "Cleanliness and presentation at {name} are well maintained. Gives you great confidence in the food.",
+    "Spotless dining area and fresh pleasant fragrance throughout {name}. Very well maintained venue!",
+    "High standards of hygiene and care at {name}. Everything from table setting to glasses was sparkling clean.",
+    "A well-kept and organized cafe! {name} takes cleanliness seriously and it really shows in the experience.",
+    "Tidy booths, polished cutlery, and clean surroundings at {name}. Highly appreciate the hygiene.",
+    "Everything looked clean and organized at {name}. Made our family meal very pleasant and comfortable.",
+    "Spic and span dining area at {name}! Clean environment paired with delicious food makes it a winner.",
+    "Clean, fresh, and properly sanitized! {name} provides a comfortable and safe dining space."
   ,
-    // 71-80: Temperature & Freshness
-    "Food arrived barely warm at {name}. The cheese had already hardened by the time the pizza reached our table.",
-    "The soup was lukewarm and had to be sent back for reheating at {name}. Decent taste once heated, though.",
-    "My coffee arrived warm rather than hot at {name}. Tasted fine, but expected freshly brewed piping hot coffee.",
-    "The bread served at {name} was slightly stale and crumbly. Rest of the dish was okay, but freshness was lacking.",
-    "Fries were limp and not as crispy as expected at {name}. Seemed like they were fried in advance.",
-    "Food temperature was an issue at {name}. Mains were served before starters were cleared and cooled down quickly.",
-    "Appetizers at {name} felt like they were sitting on the counter for a while before being brought out.",
-    "The beverage was not chilled enough at {name}. Had to request extra ice cubes to make it refreshing.",
-    "Pastry was slightly dry around the edges at {name}. Clearly wasn't baked fresh that same morning.",
-    "Decent recipes at {name}, but lukewarm serving temperatures detracted from the overall eating experience."
+    // 71-80: Good Value & Portions
+    "Good portion sizes and fair prices at {name}. Left the cafe feeling completely satisfied!",
+    "Great value for money at {name}! Quality food, generous servings, and lovely ambience.",
+    "Pocket-friendly prices for such good quality and atmosphere at {name}. Definitely worth visiting!",
+    "The combos and platters at {name} offer excellent value. Tasty food that doesn't break the bank.",
+    "Fair pricing and delicious meals at {name}. You get great food and great vibes for your money.",
+    "Generous servings that easily satisfied our group at {name}. Good quality ingredients throughout.",
+    "A cafe that gives you genuine value for what you spend! {name} hits the right balance of price and taste.",
+    "Great portions, tasty preparation, and reasonable menu rates at {name}. Very pleased with the bill.",
+    "Very satisfied with the food quality and portion sizes at {name}. Good value all around!",
+    "Worth every penny spent! {name} offers great taste, clean surroundings, and friendly service."
   ,
-    // 81-90: Hygiene & Upkeep
-    "The table was slightly sticky when we sat down at {name}. Had to ask the server to wipe it down again.",
-    "Cutlery at {name} had water spots and wasn't polished properly. Basic hygiene needs more strict vigilance.",
-    "Cleanliness was average at {name}. Crumbs on the seat from previous guests were not brushed off promptly.",
-    "The washroom at {name} was in need of maintenance and cleaning. A cafe of this stature should keep it spotless.",
-    "Napkin dispensers were empty at our table in {name}. Table setup felt somewhat hurried and careless.",
-    "Spotted dirty plates sitting on neighboring tables for over 25 minutes at {name}. Needs faster clearing.",
-    "Overall cleanliness at {name} was passable, but certainly not pristine. Hand sanitizers were empty too.",
-    "Floor had visible tissue litter in the corner at {name}. Staff should do routine walkthroughs to keep it tidy.",
-    "Menu cards at {name} were stained and torn. A fresh set of menus would give a much better impression.",
-    "Passable upkeep at {name}, but small cleanliness lapses prevented this from being a higher-rated visit."
+    // 81-90: Meetups & Conversations
+    "A fantastic spot for friends to meet up! {name} has spacious seating and delicious sharing plates.",
+    "Met up with old friends at {name} and had a great time! The staff let us chat without rushing us.",
+    "Ideal cafe for group conversations and birthday treats! {name} has plenty of room and good food.",
+    "Had a great gathering at {name}. The sharing platters and mocktails kept everyone happy throughout.",
+    "The seating arrangement at {name} is great for groups. Comfortable couches and lovely ambient music.",
+    "Enjoyed a memorable evening with colleagues at {name}. Good snacks, great coffee, and nice vibes.",
+    "Such a friendly community cafe! {name} is perfect for both casual chats and lively reunions.",
+    "Had fun chatting over snacks and shakes at {name}. The staff took good care of our table.",
+    "Great venue for an evening hangout! {name} has a welcoming vibe that makes everyone feel at home.",
+    "Loved spending time with family at {name}. Everyone from kids to grandparents enjoyed the food."
   ,
-    // 91-100: Overall Mediocrity
-    "Overall, {name} is an ordinary cafe. Nothing to complain heavily about, but nothing to rave about either.",
-    "A completely middle-of-the-road experience at {name}. It's fine if you're nearby, but not worth a special trip.",
-    "3 stars for {name}. Good aesthetics, but average food and mediocre service make it just another cafe.",
-    "Had average expectations from {name}, and the visit met them without exceeding in any area.",
-    "It's an okay spot to spend an hour, but {name} doesn't leave any lasting impression on your palate.",
-    "Expected a little more based on reviews of {name}. Ended up being a standard, unremarkable outing.",
-    "A fair, standard cafe experience at {name}. Adequate for a quick break, but has plenty of room to improve.",
-    "Strictly 3 stars for {name}. Nice decor, but kitchen output and service speed need serious fine-tuning.",
-    "It was fine. {name} has the looks, but the substance needs work to match the visual appeal.",
-    "Ordinary dining at {name}. Not bad enough to avoid, but not compelling enough to rush back anytime soon."
+    // 91-100: Overall Positive Impression
+    "Really liked our experience at {name}! Good food, nice staff, and a pleasant overall atmosphere.",
+    "A very solid and enjoyable cafe! {name} gets all the basics right and delivers with a smile.",
+    "{name} has become one of my favorite spots in the area. Consistent taste and welcoming vibes.",
+    "Had a wonderful time at {name}! Everything from drinks to desserts was well prepared.",
+    "A warm and lovely dining experience at {name}. Highly recommend checking it out if you're nearby!",
+    "Great place with positive energy! {name} is definitely worth a visit for good food and relaxation.",
+    "Very pleased with our visit to {name}. The food tasted great and the ambience was lovely.",
+    "A dependable cafe that never fails to please! {name} delivers good flavors and pleasant hospitality.",
+    "Left {name} with a smile on our faces. Good food, nice music, and friendly staff throughout.",
+    "Definitely coming back to {name} soon! A lovely place that made our evening truly delightful."
   ],
 
   2: [
