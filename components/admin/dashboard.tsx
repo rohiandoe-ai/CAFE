@@ -2,24 +2,20 @@
 
 import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { MessageSquare, Star, UtensilsCrossed, QrCode, LogOut, Menu, X, ChevronRight } from "lucide-react"
-import { WhatsAppSection } from "./whatsapp/whatsapp-section"
+import { Star, QrCode, LogOut, Menu, X, ChevronRight } from "lucide-react"
 import { ReviewsSection } from "./reviews/reviews-section"
-import { MenuManager } from "./menu/menu-manager"
 import { QRSection } from "./qr/qr-section"
 
-type Section = "whatsapp" | "reviews" | "menu" | "qr"
+type Section = "reviews" | "qr"
 
 const NAV: { id: Section; label: string; desc: string; icon: React.ReactNode; emoji: string }[] = [
-  { id: "whatsapp", label: "WhatsApp",  desc: "Customer CSV Export",    emoji: "💬", icon: <MessageSquare   style={{ width: 18, height: 18 }} /> },
   { id: "reviews",  label: "Reviews",   desc: "Customer Feedback",      emoji: "⭐", icon: <Star            style={{ width: 18, height: 18 }} /> },
-  { id: "menu",     label: "Menu",      desc: "Items & Availability",   emoji: "🍽️", icon: <UtensilsCrossed style={{ width: 18, height: 18 }} /> },
   { id: "qr",       label: "QR Code",   desc: "Generate & Download",    emoji: "📱", icon: <QrCode          style={{ width: 18, height: 18 }} /> },
 ]
 
 export function AdminDashboard() {
   const router = useRouter()
-  const [section, setSection]     = useState<Section>("whatsapp")
+  const [section, setSection]     = useState<Section>("reviews")
   const [sidebarOpen, setSidebar] = useState(false)
 
   useEffect(() => {
@@ -109,9 +105,7 @@ export function AdminDashboard() {
 
         {/* Content */}
         <main style={{ flex: 1, padding: "20px 16px", paddingBottom: 76, overflowX: "hidden" }}>
-          {section === "whatsapp" && <WhatsAppSection />}
           {section === "reviews"  && <ReviewsSection />}
-          {section === "menu"     && <MenuManager />}
           {section === "qr"       && <QRSection />}
         </main>
 
@@ -140,7 +134,7 @@ export function AdminDashboard() {
                   {item.icon}
                 </span>
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em" }}>
-                  {item.label === "Menu" ? "Menu" : item.label}
+                  {item.label}
                 </span>
               </button>
             )

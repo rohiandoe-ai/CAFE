@@ -2,18 +2,14 @@
 
 import React, { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
-import { Star, MessageCircle, UtensilsCrossed } from "lucide-react"
+import { Star } from "lucide-react"
 import { ReviewTab } from "./review-tab"
-import { SocialTab } from "./social-tab"
-import { MenuTab } from "./menu-tab"
 import { getBusiness, type Business } from "@/lib/supabase"
 
-type Tab = "review" | "social" | "menu"
+type Tab = "review"
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "review", label: "Review",  icon: <Star className="h-[18px] w-[18px]" /> },
-  { id: "social", label: "Social",  icon: <MessageCircle className="h-[18px] w-[18px]" /> },
-  { id: "menu",   label: "Menu",    icon: <UtensilsCrossed className="h-[18px] w-[18px]" /> },
 ]
 
 const FALLBACK: Business = {
@@ -80,8 +76,6 @@ export function LandingPage() {
             transition={{ duration: 0.22, ease: "easeOut" }}
           >
             {tab === "review" && <ReviewTab business={business} />}
-            {tab === "social" && <SocialTab business={business} />}
-            {tab === "menu"   && <MenuTab   business={business} />}
           </motion.div>
         </AnimatePresence>
       </main>
