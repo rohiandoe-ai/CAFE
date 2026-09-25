@@ -26,6 +26,7 @@ type TemplateType = "cafe" | "minimal"
 
 export function QRSection() {
   const canvasRef   = useRef<HTMLDivElement>(null)
+  const previewRef  = useRef<HTMLDivElement>(null)
   const bgImgRef    = useRef<HTMLImageElement | null>(null)
   const logoImgRef  = useRef<HTMLImageElement | null>(null)
 
@@ -73,9 +74,9 @@ export function QRSection() {
     const qrEl = canvasRef.current?.querySelector("canvas")
     if (!qrEl) return
     if (template === "cafe") {
-      downloadCafeTemplate(qrEl, name, fg, bgImgRef.current, logoImgRef.current)
+      downloadCafeTemplate(previewRef.current, qrEl, name, fg, bgImgRef.current, logoImgRef.current)
     } else {
-      downloadMinimal(qrEl, name, fg, bg)
+      downloadMinimal(previewRef.current, qrEl, name, fg, bg)
     }
   }
 
@@ -238,19 +239,22 @@ export function QRSection() {
 
             {template === "cafe" ? (
               /* ── Cafe template preview ── */
-              <div style={{
-                width: 280,
-                backgroundImage: bgLoaded ? `url(${BG_IMAGE_URL})` : "none",
-                backgroundColor: "#f5e6c8",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                borderRadius: 16, overflow: "hidden",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-                display: "flex", flexDirection: "column", alignItems: "center",
-                padding: "28px 20px 32px", gap: 0,
-                position: "relative",
-              }}>
+              <div
+                ref={previewRef}
+                style={{
+                  width: 280,
+                  backgroundImage: bgLoaded ? `url(${BG_IMAGE_URL})` : "none",
+                  backgroundColor: "#f5e6c8",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  borderRadius: 16, overflow: "hidden",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                  display: "flex", flexDirection: "column", alignItems: "center",
+                  padding: "28px 20px 32px", gap: 0,
+                  position: "relative",
+                }}
+              >
                 {/* Overlay to soften bg image */}
                 <div style={{
                   position: "absolute", inset: 0,
@@ -266,28 +270,37 @@ export function QRSection() {
                 }} />
 
                 {/* Cafe name (replaces ADD LOGO) */}
-                <p className="font-serif" style={{
-                  position: "relative", zIndex: 1,
-                  color: fg, fontSize: 15, fontWeight: 800,
-                  letterSpacing: "0.08em", textTransform: "uppercase",
-                  marginBottom: 6, textAlign: "center",
-                }}>
+                <p
+                  data-ref="cafe-name"
+                  className="font-serif"
+                  style={{
+                    position: "relative", zIndex: 1,
+                    color: fg, fontSize: 15, fontWeight: 800,
+                    letterSpacing: "0.08em", textTransform: "uppercase",
+                    marginBottom: 6, textAlign: "center",
+                  }}
+                >
                   {name}
                 </p>
 
                 {/* "Menu" heading */}
-                <p className="font-serif" style={{
-                  position: "relative", zIndex: 1,
-                  color: fg, fontSize: 46, fontWeight: 800,
-                  fontStyle: "italic", lineHeight: 1, marginBottom: 18,
-                  textShadow: `1px 1px 0 ${fg}22`,
-                }}>
+                <p
+                  data-ref="cafe-menu"
+                  className="font-serif"
+                  style={{
+                    position: "relative", zIndex: 1,
+                    color: fg, fontSize: 46, fontWeight: 800,
+                    fontStyle: "italic", lineHeight: 1, marginBottom: 18,
+                    textShadow: `1px 1px 0 ${fg}22`,
+                  }}
+                >
                   Menu
                 </p>
 
                 {/* QR on white bg */}
                 <div
                   ref={canvasRef}
+                  data-ref="cafe-qrbox"
                   style={{
                     position: "relative", zIndex: 1,
                     background: "#ffffff", padding: 10,
@@ -307,30 +320,36 @@ export function QRSection() {
                 </div>
 
                 {/* Scan Now */}
-                <p style={{
-                  position: "relative", zIndex: 1,
-                  color: fg, fontSize: 17, fontWeight: 700,
-                  letterSpacing: "0.08em", marginBottom: 12,
-                }}>
+                <p
+                  data-ref="cafe-scannow"
+                  style={{
+                    position: "relative", zIndex: 1,
+                    color: fg, fontSize: 17, fontWeight: 700,
+                    letterSpacing: "0.08em", marginBottom: 12,
+                  }}
+                >
                   Scan Now
                 </p>
 
                 {/* Cafe logo */}
-                <div style={{
-                  position: "relative",
-                  zIndex: 1,
-                  width: 52,
-                  height: 52,
-                  borderRadius: "50%",
-                  background: "#ffffff",
-                  border: `1.5px solid ${fg}33`,
-                  padding: 4,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                }}>
+                <div
+                  data-ref="cafe-logo"
+                  style={{
+                    position: "relative",
+                    zIndex: 1,
+                    width: 52,
+                    height: 52,
+                    borderRadius: "50%",
+                    background: "#ffffff",
+                    border: `1.5px solid ${fg}33`,
+                    padding: 4,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                  }}
+                >
                   <img 
                     src="/havana-logo.png" 
                     alt="Havana Cafe Logo" 
@@ -344,12 +363,15 @@ export function QRSection() {
               </div>
             ) : (
               /* ── Minimal preview ── */
-              <div style={{
-                background: bg, padding: 24, borderRadius: 16,
-                boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 14,
-                border: `2px solid ${fg}22`,
-              }}>
+              <div
+                ref={previewRef}
+                style={{
+                  background: bg, padding: 24, borderRadius: 16,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 14,
+                  border: `2px solid ${fg}22`,
+                }}
+              >
                 <div ref={canvasRef}>
                   <QRCodeCanvas
                     value={url || " "}
@@ -396,130 +418,203 @@ export function QRSection() {
   )
 }
 
-// ── Download: Cafe template with background image ─────────────────────────────
+// ── Download: Cafe template (Exact replica of Live Preview) ───────────────────
 function downloadCafeTemplate(
+  cardEl: HTMLDivElement | null,
   qrEl: HTMLCanvasElement,
   name: string,
   fg: string,
   bgImg: HTMLImageElement | null,
   logoImg: HTMLImageElement | null
 ) {
-  const W = 500, H = 820
+  const scale = 3
+  const cardRect = cardEl ? cardEl.getBoundingClientRect() : null
+  const W = cardRect ? Math.round(cardRect.width * scale) : 840
+  const H = cardRect ? Math.round(cardRect.height * scale) : 1500
+
   const out = document.createElement("canvas")
-  out.width = W; out.height = H
+  out.width = W
+  out.height = H
   const ctx = out.getContext("2d")
   if (!ctx) return
 
-  // Background — image or fallback color
-  if (bgImg) {
-    ctx.drawImage(bgImg, 0, 0, W, H)
-  } else {
-    ctx.fillStyle = "#f5e6c8"
-    ctx.fillRect(0, 0, W, H)
-  }
+  // 1. Clip entire canvas to rounded corners matching preview (borderRadius: 16)
+  drawRoundRect(ctx, 0, 0, W, H, 16 * scale)
+  ctx.clip()
 
-  // Semi-transparent overlay so text is readable
-  ctx.fillStyle = "rgba(245,230,200,0.5)"
+  // 2. Base background color
+  ctx.fillStyle = "#f5e6c8"
   ctx.fillRect(0, 0, W, H)
 
-  // Outer border
-  ctx.strokeStyle = fg + "66"
-  ctx.lineWidth = 3
-  roundRect(ctx, 16, 16, W - 32, H - 32, 22)
-  ctx.stroke()
+  // 3. Background image with CSS "cover" and "center" fitting
+  const bgSource = bgImg && (bgImg.complete || bgImg.naturalWidth > 0) ? bgImg : null
+  if (bgSource) {
+    const imgW = bgSource.naturalWidth || bgSource.width
+    const imgH = bgSource.naturalHeight || bgSource.height
+    const imgRatio = imgW / imgH
+    const canvasRatio = W / H
+    let drawW = W, drawH = H, drawX = 0, drawY = 0
 
-  // Inner border
-  ctx.strokeStyle = fg + "33"
-  ctx.lineWidth = 1.5
-  roundRect(ctx, 26, 26, W - 52, H - 52, 18)
-  ctx.stroke()
+    if (imgRatio > canvasRatio) {
+      drawH = H
+      drawW = H * imgRatio
+      drawX = (W - drawW) / 2
+    } else {
+      drawW = W
+      drawH = W / imgRatio
+      drawY = (H - drawH) / 2
+    }
+    ctx.drawImage(bgSource, drawX, drawY, drawW, drawH)
+  }
 
-  // Cafe / Bar Name (top, replaces ADD LOGO)
-  ctx.fillStyle = fg
-  ctx.font = "bold 22px Georgia, serif"
-  ctx.textAlign = "center"
-  ctx.letterSpacing = "3px"
-  ctx.fillText(name.toUpperCase(), W / 2, 78)
-  ctx.letterSpacing = "0px"
+  // 4. Softening overlay matching preview: rgba(245,230,200,0.55)
+  ctx.fillStyle = "rgba(245,230,200,0.55)"
+  ctx.fillRect(0, 0, W, H)
 
-  // Decorative line under name
+  // 5. Inset border matching preview: inset: 10, border: 1.5px solid ${fg}55, borderRadius: 10
+  const inset = 10 * scale
   ctx.strokeStyle = fg + "55"
-  ctx.lineWidth = 1.5
-  const nameW = Math.min(ctx.measureText(name.toUpperCase()).width + 40, 240)
-  ctx.beginPath()
-  ctx.moveTo(W / 2 - nameW / 2, 90)
-  ctx.lineTo(W / 2 + nameW / 2, 90)
+  ctx.lineWidth = 1.5 * scale
+  drawRoundRect(ctx, inset, inset, W - inset * 2, H - inset * 2, 10 * scale)
   ctx.stroke()
 
-  // "Menu" heading italic
+  // 6. Cafe name
+  let nameY = 46 * scale
+  const nameEl = cardEl?.querySelector("[data-ref='cafe-name']")
+  if (nameEl && cardRect) {
+    const rect = nameEl.getBoundingClientRect()
+    nameY = (rect.top - cardRect.top + rect.height / 2) * scale
+  }
   ctx.fillStyle = fg
-  ctx.font = "italic bold 90px Georgia, serif"
+  ctx.font = `800 ${15 * scale}px Georgia, "Playfair Display", "Times New Roman", serif`
   ctx.textAlign = "center"
-  ctx.fillText("Menu", W / 2, 192)
+  ctx.textBaseline = "middle"
+  if ("letterSpacing" in ctx) {
+    (ctx as any).letterSpacing = `${0.08 * 15 * scale}px`
+  }
+  ctx.fillText(name.toUpperCase(), W / 2, nameY)
+  if ("letterSpacing" in ctx) {
+    (ctx as any).letterSpacing = "0px"
+  }
 
-  // Underline for Menu
-  ctx.strokeStyle = fg + "55"
-  ctx.lineWidth = 2
-  ctx.beginPath()
-  ctx.moveTo(W / 2 - 110, 202)
-  ctx.lineTo(W / 2 + 110, 202)
-  ctx.stroke()
-
-  // QR white bg
-  const qrSize = 280
-  const qx = (W - qrSize) / 2
-  const qy = 236
-  ctx.shadowColor = "rgba(0,0,0,0.2)"
-  ctx.shadowBlur = 18
-  ctx.fillStyle = "#ffffff"
-  roundRect(ctx, qx - 14, qy - 14, qrSize + 28, qrSize + 28, 12)
-  ctx.fill()
+  // 7. "Menu" heading matching preview (italic 46px, text-shadow)
+  let menuY = 96 * scale
+  const menuEl = cardEl?.querySelector("[data-ref='cafe-menu']")
+  if (menuEl && cardRect) {
+    const rect = menuEl.getBoundingClientRect()
+    menuY = (rect.top - cardRect.top + rect.height / 2) * scale
+  }
+  ctx.save()
+  ctx.fillStyle = fg
+  ctx.font = `italic 800 ${46 * scale}px Georgia, "Playfair Display", "Times New Roman", serif`
+  ctx.textAlign = "center"
+  ctx.textBaseline = "middle"
+  ctx.shadowColor = fg + "22"
+  ctx.shadowOffsetX = 1 * scale
+  ctx.shadowOffsetY = 1 * scale
   ctx.shadowBlur = 0
-  ctx.drawImage(qrEl, qx, qy, qrSize, qrSize)
+  ctx.fillText("Menu", W / 2, menuY)
+  ctx.restore()
 
-  // "Scan Now"
+  // 8. QR Box & QR Code
+  // Sized exactly to cover the placeholder QR code on background image
+  let boxX = 20 * scale
+  let boxY = 140 * scale
+  let boxW = 240 * scale
+  let boxH = 240 * scale
+  const qrBoxEl = cardEl?.querySelector("[data-ref='cafe-qrbox']")
+  if (qrBoxEl && cardRect) {
+    const rect = qrBoxEl.getBoundingClientRect()
+    boxX = (rect.left - cardRect.left) * scale
+    boxY = (rect.top - cardRect.top) * scale
+    boxW = rect.width * scale
+    boxH = rect.height * scale
+  }
+  const pad = 10 * scale
+  const boxR = 8 * scale
+
+  // White box with shadow matching preview
+  ctx.save()
+  ctx.shadowColor = "rgba(0,0,0,0.25)"
+  ctx.shadowOffsetX = 0
+  ctx.shadowOffsetY = 2 * scale
+  ctx.shadowBlur = 16 * scale
+  ctx.fillStyle = "#ffffff"
+  drawRoundRect(ctx, boxX, boxY, boxW, boxH, boxR)
+  ctx.fill()
+  ctx.restore()
+
+  // Draw QR code crisp
+  const qrDrawW = boxW - pad * 2
+  const qrDrawH = boxH - pad * 2
+  ctx.imageSmoothingEnabled = false
+  ctx.drawImage(qrEl, boxX + pad, boxY + pad, qrDrawW, qrDrawH)
+  ctx.imageSmoothingEnabled = true
+
+  // 9. "Scan Now" matching preview
+  let scanY = boxY + boxH + 22 * scale
+  const scanEl = cardEl?.querySelector("[data-ref='cafe-scannow']")
+  if (scanEl && cardRect) {
+    const rect = scanEl.getBoundingClientRect()
+    scanY = (rect.top - cardRect.top + rect.height / 2) * scale
+  }
   ctx.fillStyle = fg
-  ctx.font = "600 30px Georgia, serif"
+  ctx.font = `700 ${17 * scale}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
   ctx.textAlign = "center"
-  ctx.letterSpacing = "3px"
-  ctx.fillText("Scan Now", W / 2, qy + qrSize + 62)
-  ctx.letterSpacing = "0px"
-
-  // Dots
-  ctx.fillStyle = fg + "77"
-  for (let i = -2; i <= 2; i++) {
-    ctx.beginPath()
-    ctx.arc(W / 2 + i * 16, qy + qrSize + 82, i === 0 ? 4 : 2.5, 0, Math.PI * 2)
-    ctx.fill()
+  ctx.textBaseline = "middle"
+  if ("letterSpacing" in ctx) {
+    (ctx as any).letterSpacing = `${0.08 * 17 * scale}px`
+  }
+  ctx.fillText("Scan Now", W / 2, scanY)
+  if ("letterSpacing" in ctx) {
+    (ctx as any).letterSpacing = "0px"
   }
 
-  // Havana Cafe logo
-  if (logoImg) {
+  // 10. Havana Cafe Logo centered badge matching preview
+  let logoX = (W - 52 * scale) / 2
+  let logoY = scanY + 24 * scale
+  let logoW = 52 * scale
+  let logoH = 52 * scale
+  const logoEl = cardEl?.querySelector("[data-ref='cafe-logo']")
+  if (logoEl && cardRect) {
+    const rect = logoEl.getBoundingClientRect()
+    logoX = (rect.left - cardRect.left) * scale
+    logoY = (rect.top - cardRect.top) * scale
+    logoW = rect.width * scale
+    logoH = rect.height * scale
+  }
+  const radius = logoW / 2
+  const logoPad = 4 * scale
+
+  // White badge with shadow
+  ctx.save()
+  ctx.shadowColor = "rgba(0,0,0,0.12)"
+  ctx.shadowOffsetX = 0
+  ctx.shadowOffsetY = 2 * scale
+  ctx.shadowBlur = 8 * scale
+  ctx.fillStyle = "#ffffff"
+  ctx.beginPath()
+  ctx.arc(logoX + radius, logoY + radius, radius, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
+
+  // Border
+  ctx.strokeStyle = fg + "33"
+  ctx.lineWidth = 1.5 * scale
+  ctx.beginPath()
+  ctx.arc(logoX + radius, logoY + radius, radius, 0, Math.PI * 2)
+  ctx.stroke()
+
+  // Logo image
+  const actualLogo = logoImg || (logoEl?.querySelector("img") as HTMLImageElement | null)
+  if (actualLogo && (actualLogo.complete || actualLogo.naturalWidth > 0)) {
     ctx.save()
-    ctx.fillStyle = "#ffffff"
     ctx.beginPath()
-    ctx.arc(W / 2 + 130, H - 70, 28, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.strokeStyle = fg + "44"
-    ctx.lineWidth = 1.5
-    ctx.stroke()
-    ctx.drawImage(logoImg, W / 2 + 130 - 24, H - 70 - 24, 48, 48)
+    ctx.arc(logoX + radius, logoY + radius, radius - 1, 0, Math.PI * 2)
+    ctx.clip()
+    ctx.drawImage(actualLogo, logoX + logoPad, logoY + logoPad, logoW - logoPad * 2, logoH - logoPad * 2)
     ctx.restore()
-  } else {
-    ctx.font = "bold 16px Arial"
-    ctx.textAlign = "center"
-    ctx.fillStyle = fg
-    ctx.fillText("HAVANA", W / 2 + 130, H - 75)
-    ctx.font = "12px Arial"
-    ctx.fillText("CAFE", W / 2 + 130, H - 60)
   }
-
-  // Decorative stars
-  ctx.fillStyle = fg + "55"
-  ctx.font = "20px Arial"
-  ctx.fillText("✦", 52,  H - 110)
-  ctx.fillText("✦", 440, H - 150)
-  ctx.fillText("✦", 60,  H - 190)
 
   const a = document.createElement("a")
   a.download = `${name.replace(/\s+/g, "-").toLowerCase()}-menu-qr.png`
@@ -528,30 +623,72 @@ function downloadCafeTemplate(
 }
 
 // ── Download: Minimal template ────────────────────────────────────────────────
-function downloadMinimal(qrEl: HTMLCanvasElement, name: string, fg: string, bg: string) {
-  const pad = 52, labelH = 64
-  const qs  = qrEl.width
-  const W   = qs + pad * 2, H = qs + pad * 2 + labelH
+function downloadMinimal(
+  cardEl: HTMLDivElement | null,
+  qrEl: HTMLCanvasElement,
+  name: string,
+  fg: string,
+  bg: string
+) {
+  const scale = 3
+  const cardRect = cardEl ? cardEl.getBoundingClientRect() : null
+  const W = cardRect ? Math.round(cardRect.width * scale) : 600
+  const H = cardRect ? Math.round(cardRect.height * scale) : 720
+
+  let qrX = 0, qrY = 0, qrW = 0, qrH = 0
+  let nameY = 0
+  const pad = 24 * scale
+
+  if (cardEl && cardRect) {
+    const qrCanvas = cardEl.querySelector("canvas")
+    if (qrCanvas) {
+      const qRect = qrCanvas.getBoundingClientRect()
+      qrX = (qRect.left - cardRect.left) * scale
+      qrY = (qRect.top - cardRect.top) * scale
+      qrW = qRect.width * scale
+      qrH = qRect.height * scale
+    }
+    const nameP = cardEl.querySelector("p")
+    if (nameP) {
+      const nRect = nameP.getBoundingClientRect()
+      nameY = (nRect.top - cardRect.top + nRect.height / 2) * scale
+    }
+  }
+
   const out = document.createElement("canvas")
-  out.width = W; out.height = H
+  out.width = W
+  out.height = H
   const ctx = out.getContext("2d")
   if (!ctx) return
 
+  // Rounded card background
+  drawRoundRect(ctx, 0, 0, W, H, 16 * scale)
+  ctx.clip()
   ctx.fillStyle = bg
-  roundRect(ctx, 0, 0, W, H, 28)
-  ctx.fill()
+  ctx.fillRect(0, 0, W, H)
 
-  ctx.strokeStyle = fg + "44"
-  ctx.lineWidth = 2
-  roundRect(ctx, 10, 10, W - 20, H - 20, 22)
+  // Border matching preview: border: 2px solid ${fg}22
+  ctx.strokeStyle = fg + "22"
+  ctx.lineWidth = 2 * scale
+  drawRoundRect(ctx, 1 * scale, 1 * scale, W - 2 * scale, H - 2 * scale, 16 * scale)
   ctx.stroke()
 
-  ctx.drawImage(qrEl, pad, pad, qs, qs)
+  // QR Code
+  ctx.imageSmoothingEnabled = false
+  if (qrW > 0) {
+    ctx.drawImage(qrEl, qrX, qrY, qrW, qrH)
+  } else {
+    const qs = qrEl.width * scale
+    ctx.drawImage(qrEl, (W - qs) / 2, pad, qs, qs)
+  }
+  ctx.imageSmoothingEnabled = true
 
+  // Name
   ctx.fillStyle = fg
-  ctx.font = "700 24px Georgia, serif"
+  ctx.font = `700 ${18 * scale}px Georgia, serif`
   ctx.textAlign = "center"
-  ctx.fillText(name, W / 2, qs + pad + 42)
+  ctx.textBaseline = "middle"
+  ctx.fillText(name, W / 2, nameY || (H - pad))
 
   const a = document.createElement("a")
   a.download = `${name.replace(/\s+/g, "-").toLowerCase()}-qr.png`
@@ -560,7 +697,12 @@ function downloadMinimal(qrEl: HTMLCanvasElement, name: string, fg: string, bg: 
 }
 
 // ── Helper ────────────────────────────────────────────────────────────────────
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+function drawRoundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  if (typeof ctx.roundRect === "function") {
+    ctx.beginPath()
+    ctx.roundRect(x, y, w, h, r)
+    return
+  }
   ctx.beginPath()
   ctx.moveTo(x + r, y)
   ctx.arcTo(x + w, y,     x + w, y + h, r)
