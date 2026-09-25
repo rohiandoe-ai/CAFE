@@ -6,6 +6,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  compress: true,
+  poweredByHeader: false,
 }
 
 export default nextConfig

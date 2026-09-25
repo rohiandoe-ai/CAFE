@@ -93,16 +93,51 @@ export type Campaign = {
   created_at: string
 }
 
-// ─── Business ─────────────────────────────────────────────────────────────────
+// In-memory cache for ultra-fast repeated calls
+let cachedBusiness: Business | null = null
+const BUSINESS_CACHE_KEY = "havana_business_cache"
 
 export async function getBusiness(): Promise<Business | null> {
+  if (cachedBusiness) return cachedBusiness
+
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(BUSINESS_CACHE_KEY)
+      if (stored) {
+        cachedBusiness = JSON.parse(stored) as Business
+        // Background revalidate without blocking
+        ;(async () => {
+          try {
+            const { data } = await supabase
+              .from("businesses")
+              .select("*")
+              .eq("id", CAFE_ID)
+              .maybeSingle()
+            if (data) {
+              cachedBusiness = data as Business
+              localStorage.setItem(BUSINESS_CACHE_KEY, JSON.stringify(data))
+            }
+          } catch {}
+        })()
+        return cachedBusiness
+      }
+    } catch {}
+  }
+
   const { data, error } = await supabase
     .from("businesses")
     .select("*")
     .eq("id", CAFE_ID)
     .maybeSingle()
+
   if (error) { console.error("getBusiness:", error.message); return null }
-  return data
+  if (data) {
+    cachedBusiness = data as Business
+    if (typeof window !== "undefined") {
+      try { localStorage.setItem(BUSINESS_CACHE_KEY, JSON.stringify(data)) } catch {}
+    }
+  }
+  return cachedBusiness
 }
 
 export async function updateBusiness(
@@ -181,10 +216,10 @@ export async function insertReview(review: {
   const { data, error } = await supabase
     .from("reviews")
     .insert({ cafe_id: CAFE_ID, ...review })
-    .select()
+    .select("id, rating, created_at")
     .single()
   if (error) { console.error("insertReview:", error.message); return null }
-  return data
+  return data as Review
 }
 
 export async function markReviewCopied(reviewId: string): Promise<void> {

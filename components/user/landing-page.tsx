@@ -28,28 +28,26 @@ export function LandingPage() {
   const [ready, setReady]       = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setReady(true), 2000)
+    // 1. Immediately hydrate from cache if available
+    try {
+      const cached = localStorage.getItem("havana_business_cache")
+      if (cached) {
+        setBusiness(JSON.parse(cached))
+        setReady(true)
+      }
+    } catch {}
+
+    // 2. Fetch in background without blocking initial paint
     getBusiness()
-      .then(d => { if (d) setBusiness(d) })
+      .then(d => {
+        if (d) setBusiness(d)
+      })
       .catch(console.error)
-      .finally(() => { clearTimeout(timer); setReady(true) })
-    return () => clearTimeout(timer)
+      .finally(() => setReady(true))
   }, [])
 
   if (!ready) {
-    return (
-      <div className="flex min-h-svh flex-col items-center justify-center gap-4" style={{ background: "#0a0a0a" }}>
-        <div
-          className="h-12 w-12 rounded-full border-2 border-t-transparent"
-          style={{
-            borderColor: "#c9a84c",
-            borderTopColor: "transparent",
-            animation: "spin 0.8s linear infinite",
-          }}
-        />
-        <p className="text-sm" style={{ color: "#888880" }}>Loading…</p>
-      </div>
-    )
+    return <ReviewSkeleton />
   }
 
   return (
@@ -136,3 +134,39 @@ export function LandingPage() {
     </div>
   )
 }
+
+function ReviewSkeleton() {
+  return (
+    <div style={{ minHeight: "100vh", padding: "24px 20px 24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+      {/* Logo skeleton */}
+      <div className="shimmer" style={{ width: 76, height: 76, borderRadius: "50%", marginBottom: 14 }} />
+      {/* Title skeleton */}
+      <div className="shimmer" style={{ width: 190, height: 24, borderRadius: 6, marginBottom: 8 }} />
+      {/* Subtitle skeleton */}
+      <div className="shimmer" style={{ width: 130, height: 14, borderRadius: 4, marginBottom: 28 }} />
+
+      {/* Progress steps skeleton */}
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 32 }}>
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="shimmer" style={{ width: 28, height: 28, borderRadius: "50%" }} />
+        ))}
+      </div>
+
+      {/* Card skeleton */}
+      <div style={{
+        width: "100%", maxWidth: 420,
+        background: "rgba(45, 26, 0, 0.8)", border: "1px solid #3d2800",
+        borderRadius: 16, padding: 20, display: "flex", flexDirection: "column", gap: 18,
+      }}>
+        <div className="shimmer" style={{ width: "30%", height: 12, borderRadius: 4 }} />
+        <div className="shimmer" style={{ width: "100%", height: 48, borderRadius: 8 }} />
+        <div className="shimmer" style={{ width: "35%", height: 12, borderRadius: 4 }} />
+        <div className="shimmer" style={{ width: "100%", height: 48, borderRadius: 8 }} />
+      </div>
+
+      {/* Button skeleton */}
+      <div className="shimmer" style={{ width: "100%", maxWidth: 420, height: 52, borderRadius: 8, marginTop: 16 }} />
+    </div>
+  )
+}
+

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { User, Phone, Star, RefreshCw, Copy, Check, ChevronRight, Loader2 } from "lucide-react"
 import { upsertCustomer, insertReview, markReviewCopied, type Business, type Customer } from "@/lib/supabase"
@@ -13,6 +13,7 @@ export function ReviewTab({ business }: { business: Business }) {
   const cafeName  = business.name
   const reviewUrl = business.google_review_url
 
+  const [googleUrl, setGoogleUrl] = useState(business?.google_review_url || "")
   const [step, setStep]       = useState<Step>(1)
   const [name, setName]       = useState("")
   const [phone, setPhone]     = useState("")
@@ -27,45 +28,81 @@ export function ReviewTab({ business }: { business: Business }) {
   const [reviewId, setRevId]  = useState<string | null>(null)
   const [copied, setCopied]   = useState(false)
 
+  // Preload and keep google_review_url ready in state
+  useEffect(() => {
+    if (business?.google_review_url) {
+      setGoogleUrl(business.google_review_url)
+    }
+  }, [business?.google_review_url])
+
+  // Instant step 1 to step 2 with background customer upsert
   const step1 = async () => {
     if (!name.trim() || phone.length < 10) return
-    setSaving(true)
-    const c = await upsertCustomer(name.trim(), phone.trim())
-    setCustomer(c)
-    setSaving(false)
     setStep(2)
+    upsertCustomer(name.trim(), phone.trim())
+      .then(c => { if (c) setCustomer(c) })
+      .catch(console.error)
   }
 
+  // Pre-generate AI review on star select so it's 100% ready for step 3
   const starClick = (s: number) => {
-    setRating(s); setPopStar(s)
+    setRating(s)
+    setPopStar(s)
     setTimeout(() => setPopStar(0), 300)
+    const pregen = generateReview(s, cafeName)
+    setMessage(pregen)
   }
 
-  const step2 = async () => {
+  // Instant transition to step 3 with background review insert
+  const step2 = () => {
     if (!rating) return
-    setStep(3); setGen(true)
-    const rev = await insertReview({
-      customer_id: customer?.id, rating,
+    const reviewText = message || generateReview(rating, cafeName)
+    if (!message) setMessage(reviewText)
+    setStep(3)
+    insertReview({
+      customer_id: customer?.id,
+      rating,
       food_rating: subRatings.Food || undefined,
       service_rating: subRatings.Service || undefined,
       atmosphere_rating: subRatings.Atmosphere || undefined,
-    })
-    setRevId(rev?.id ?? null)
-    await new Promise(r => setTimeout(r, 1000))
-    setMessage(generateReview(rating, cafeName, message))
-    setGen(false)
+      review_text: reviewText,
+    }).then(rev => {
+      if (rev?.id) setRevId(rev.id)
+    }).catch(console.error)
   }
 
   const reshuffle = () => {
-    setGen(true)
-    setTimeout(() => { setMessage(generateReview(rating, cafeName, message)); setGen(false) }, 500)
+    setMessage(generateReview(rating, cafeName, message))
   }
 
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(message) } catch {}
+  // Instant clipboard copy + instant Google redirect + async DB update
+  const copy = () => {
+    // 1. Copy text to clipboard
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(message)
+      } else {
+        const ta = document.createElement("textarea")
+        ta.value = message
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand("copy")
+        document.body.removeChild(ta)
+      }
+    } catch {}
+
     setCopied(true)
-    if (reviewId) await markReviewCopied(reviewId)
-    setTimeout(() => window.open(reviewUrl, "_blank"), 900)
+
+    // 2. Open Google review link immediately (direct user click gesture, no popup block)
+    const targetUrl = googleUrl || reviewUrl || business.google_review_url
+    if (targetUrl) {
+      window.open(targetUrl, "_blank")
+    }
+
+    // 3. Mark review copied in background without delaying user
+    if (reviewId) {
+      markReviewCopied(reviewId).catch(() => {})
+    }
   }
 
   const reset = () => {
@@ -223,28 +260,48 @@ export function ReviewTab({ business }: { business: Business }) {
               <p style={{ color: "#f5f0e8", fontWeight: 600, marginBottom: 4 }}>Overall Rating</p>
               <p style={{ color: "#888880", fontSize: 13, marginBottom: 16 }}>Tap a star to rate your experience</p>
 
-              {/* Big stars */}
-              <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 24 }}>
-                {[1,2,3,4,5].map(s => (
-                  <button
-                    key={s}
-                    onClick={() => starClick(s)}
-                    onMouseEnter={() => setHovered(s)}
-                    onMouseLeave={() => setHovered(0)}
-                    style={{
-                      background: "none", border: "none", cursor: "pointer", padding: 4,
-                      transform: popStar === s ? "scale(1.3)" : "scale(1)",
-                      transition: "transform 0.15s ease",
-                    }}
-                  >
-                    <Star style={{
-                      width: 40, height: 40,
-                      color: s <= (hovered || rating) ? "#c9a84c" : "#2a2a2a",
-                      fill: s <= (hovered || rating) ? "#c9a84c" : "transparent",
-                      transition: "color 0.15s, fill 0.15s",
-                    }} />
-                  </button>
-                ))}
+              {/* Big stars - 52px mobile, 8px gap, bright gold outline when empty, solid gold + glow when filled */}
+              <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 24 }}>
+                {[1, 2, 3, 4, 5].map(s => {
+                  const isFilled = s <= (hovered || rating)
+                  const isHovered = hovered === s || popStar === s
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => starClick(s)}
+                      onMouseEnter={() => setHovered(s)}
+                      onMouseLeave={() => setHovered(0)}
+                      aria-label={`${s} star rating`}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                        minWidth: 48,
+                        minHeight: 48,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transform: popStar === s ? "scale(1.25)" : isHovered ? "scale(1.15)" : isFilled ? "scale(1.08)" : "scale(1)",
+                        transition: "transform 0.15s ease",
+                      }}
+                    >
+                      <Star
+                        style={{
+                          width: 50,
+                          height: 50,
+                          color: "#C9A84C",
+                          fill: isFilled ? "#C9A84C" : "transparent",
+                          strokeWidth: 2,
+                          filter: isFilled
+                            ? "drop-shadow(0 0 8px rgba(201, 168, 76, 0.8))"
+                            : "drop-shadow(0 0 3px rgba(201, 168, 76, 0.35))",
+                          transition: "fill 0.15s ease, filter 0.15s ease, transform 0.15s ease",
+                        }}
+                      />
+                    </button>
+                  )
+                })}
               </div>
 
               {rating > 0 && (
@@ -262,20 +319,41 @@ export function ReviewTab({ business }: { business: Business }) {
                   <div key={label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <span style={{ color: "#f5f0e8", fontSize: 14, fontWeight: 500 }}>{label}</span>
                     <div style={{ display: "flex", gap: 6 }}>
-                      {[1,2,3,4,5].map(s => (
-                        <button
-                          key={s}
-                          onClick={() => setSub(p => ({ ...p, [label]: s }))}
-                          style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}
-                        >
-                          <Star style={{
-                            width: 22, height: 22,
-                            color: s <= subRatings[label] ? "#c9a84c" : "#2a2a2a",
-                            fill: s <= subRatings[label] ? "#c9a84c" : "transparent",
-                            transition: "color 0.1s",
-                          }} />
-                        </button>
-                      ))}
+                      {[1, 2, 3, 4, 5].map(s => {
+                        const isFilled = s <= subRatings[label]
+                        return (
+                          <button
+                            key={s}
+                            onClick={() => setSub(p => ({ ...p, [label]: s }))}
+                            aria-label={`${label} ${s} star`}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                              padding: 2,
+                              minWidth: 34,
+                              minHeight: 34,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              transform: isFilled ? "scale(1.08)" : "scale(1)",
+                              transition: "transform 0.12s ease",
+                            }}
+                          >
+                            <Star
+                              style={{
+                                width: 30,
+                                height: 30,
+                                color: "#C9A84C",
+                                fill: isFilled ? "#C9A84C" : "transparent",
+                                strokeWidth: 2,
+                                filter: isFilled ? "drop-shadow(0 0 6px rgba(201, 168, 76, 0.7))" : "none",
+                                transition: "fill 0.12s ease, filter 0.12s ease",
+                              }}
+                            />
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
                 ))}
