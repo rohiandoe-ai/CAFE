@@ -5,15 +5,15 @@ import { QRCodeCanvas } from "qrcode.react"
 import { Download, Save, Check, Loader2, RefreshCw } from "lucide-react"
 import { getBusiness, updateBusiness } from "@/lib/supabase"
 
-const BG_IMAGE_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQW5zIz3sXHZGBEKGi4vBHxPQto5pB5QbW6m6y4V1iD7AsfmrDjJESomi0&s=10"
+const BG_IMAGE_URL = "/cafe-bg.jpg"
 
 const PRESETS = [
-  { label: "Cafe",   fg: "#6b2d2d", bg: "#f5e6c8" },
-  { label: "Gold",   fg: "#c9a84c", bg: "#0a0a0a" },
-  { label: "White",  fg: "#ffffff", bg: "#1a1a1a" },
-  { label: "Black",  fg: "#1a1a1a", bg: "#ffffff" },
-  { label: "Green",  fg: "#2d6b3a", bg: "#e8f5e9" },
-  { label: "Navy",   fg: "#1a2b5f", bg: "#eef2ff" },
+  { label: "Cafe", fg: "#6b2d2d", bg: "#f5e6c8" },
+  { label: "Gold", fg: "#c9a84c", bg: "#0a0a0a" },
+  { label: "White", fg: "#ffffff", bg: "#1a1a1a" },
+  { label: "Black", fg: "#1a1a1a", bg: "#ffffff" },
+  { label: "Green", fg: "#2d6b3a", bg: "#e8f5e9" },
+  { label: "Navy", fg: "#1a2b5f", bg: "#eef2ff" },
 ]
 
 const SIZES = [
@@ -25,27 +25,27 @@ const SIZES = [
 type TemplateType = "cafe" | "minimal"
 
 export function QRSection() {
-  const canvasRef   = useRef<HTMLDivElement>(null)
-  const previewRef  = useRef<HTMLDivElement>(null)
-  const bgImgRef    = useRef<HTMLImageElement | null>(null)
-  const logoImgRef  = useRef<HTMLImageElement | null>(null)
+  const canvasRef = useRef<HTMLDivElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
+  const bgImgRef = useRef<HTMLImageElement | null>(null)
+  const logoImgRef = useRef<HTMLImageElement | null>(null)
 
-  const [url,      setUrl]      = useState("")
-  const [name,     setName]     = useState("Havana Jaipur")
-  const [fg,       setFg]       = useState("#6b2d2d")
-  const [bg,       setBg]       = useState("#f5e6c8")
-  const [qrSize,   setQrSize]   = useState(220)
+  const [url, setUrl] = useState("")
+  const [name, setName] = useState("Havana Jaipur")
+  const [fg, setFg] = useState("#6b2d2d")
+  const [bg, setBg] = useState("#f5e6c8")
+  const [qrSize, setQrSize] = useState(220)
   const [template, setTemplate] = useState<TemplateType>("cafe")
-  const [saved,    setSaved]    = useState(false)
-  const [saving,   setSaving]   = useState(false)
-  const [loading,  setLoading]  = useState(true)
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [bgLoaded, setBgLoaded] = useState(false)
 
   // Pre-load the background image and logo once
   useEffect(() => {
     const img = new Image()
     img.crossOrigin = "anonymous"
-    img.onload  = () => { bgImgRef.current = img; setBgLoaded(true) }
+    img.onload = () => { bgImgRef.current = img; setBgLoaded(true) }
     img.onerror = () => setBgLoaded(false)
     img.src = BG_IMAGE_URL
 
@@ -106,8 +106,8 @@ export function QRSection() {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {([
-                  { id: "cafe",    label: "Cafe Style", desc: "With texture bg" },
-                  { id: "minimal", label: "⬛ Minimal",    desc: "Clean & simple"  },
+                  { id: "cafe", label: "Cafe Style", desc: "With texture bg" },
+                  { id: "minimal", label: "⬛ Minimal", desc: "Clean & simple" },
                 ] as { id: TemplateType; label: string; desc: string }[]).map(t => (
                   <button key={t.id} onClick={() => setTemplate(t.id)} style={{
                     padding: "12px 10px", borderRadius: 12, cursor: "pointer", textAlign: "left",
@@ -151,7 +151,7 @@ export function QRSection() {
                 {saving
                   ? <><Loader2 style={{ width: 14, height: 14, animation: "spin 0.8s linear infinite" }} /> Saving…</>
                   : saved ? <><Check style={{ width: 14, height: 14 }} /> Saved!</>
-                  : <><Save style={{ width: 14, height: 14 }} /> Save name</>}
+                    : <><Save style={{ width: 14, height: 14 }} /> Save name</>}
               </button>
             </div>
 
@@ -195,7 +195,7 @@ export function QRSection() {
               <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(201,168,76,0.12)", borderRadius: 18, padding: 20 }}>
                 <p style={{ color: "#c9a84c", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>QR Color</p>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-                  {["#6b2d2d","#1a1a1a","#1a2b5f","#2d6b3a","#c9a84c","#9b59b6"].map(c => (
+                  {["#6b2d2d", "#1a1a1a", "#1a2b5f", "#2d6b3a", "#c9a84c", "#9b59b6"].map(c => (
                     <button key={c} onClick={() => setFg(c)} style={{
                       width: 34, height: 34, borderRadius: 8, cursor: "pointer",
                       background: c, border: "none",
@@ -258,7 +258,7 @@ export function QRSection() {
                 {/* Overlay to soften bg image */}
                 <div style={{
                   position: "absolute", inset: 0,
-                  background: "rgba(245,230,200,0.55)",
+                  background: "rgba(245,230,200,0.18)",
                   pointerEvents: "none",
                 }} />
 
@@ -350,14 +350,14 @@ export function QRSection() {
                     overflow: "hidden",
                   }}
                 >
-                  <img 
-                    src="/havana-logo.png" 
-                    alt="Havana Cafe Logo" 
-                    style={{ 
-                      width: "100%", 
-                      height: "100%", 
-                      objectFit: "contain" 
-                    }} 
+                  <img
+                    src="/havana-logo.png"
+                    alt="Havana Cafe Logo"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain"
+                    }}
                   />
                 </div>
               </div>
@@ -467,8 +467,8 @@ function downloadCafeTemplate(
     ctx.drawImage(bgSource, drawX, drawY, drawW, drawH)
   }
 
-  // 4. Softening overlay matching preview: rgba(245,230,200,0.55)
-  ctx.fillStyle = "rgba(245,230,200,0.55)"
+  // 4. Softening overlay matching preview: rgba(245,230,200,0.18)
+  ctx.fillStyle = "rgba(245,230,200,0.18)"
   ctx.fillRect(0, 0, W, H)
 
   // 5. Inset border matching preview: inset: 10, border: 1.5px solid ${fg}55, borderRadius: 10
@@ -705,9 +705,9 @@ function drawRoundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: n
   }
   ctx.beginPath()
   ctx.moveTo(x + r, y)
-  ctx.arcTo(x + w, y,     x + w, y + h, r)
-  ctx.arcTo(x + w, y + h, x,     y + h, r)
-  ctx.arcTo(x,     y + h, x,     y,     r)
-  ctx.arcTo(x,     y,     x + w, y,     r)
+  ctx.arcTo(x + w, y, x + w, y + h, r)
+  ctx.arcTo(x + w, y + h, x, y + h, r)
+  ctx.arcTo(x, y + h, x, y, r)
+  ctx.arcTo(x, y, x + w, y, r)
   ctx.closePath()
 }
